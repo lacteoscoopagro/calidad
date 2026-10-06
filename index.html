@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B5C86">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calidad">
+<meta name="robots" content="noindex">
+<title>Calidad COOPAGRO</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: the plant walk as a rail of sectors on the left, an evidence wall of
+   stamped photos on the right. On a phone the rail is the home screen and a
+   sector opens over it. */
+:root{
+  --bg:#ECEFF2; --surface:#FAFBFC; --sunken:#DFE4E8; --ink:#14222B; --muted:#566772; --line:#CBD3D9;
+  --accent:#0B5C86; --accent-ink:#FFFFFF; --accent-soft:#D9E8F1;
+  --pend:#AE2E1C; --pend-bg:#FBE2DC; --proc:#7C5200; --proc-bg:#FAEAC4; --ok:#1B6540; --ok-bg:#DAEFE2;
+  --stamp-bg:rgba(12,22,28,.78); --stamp-fg:#F2F6F8; --scrim:rgba(12,22,28,.55);
+  --f-display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"Barlow","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#2B3A45;
+    --accent:#62B6E2; --accent-ink:#06202E; --accent-soft:#173546;
+    --pend:#FF9480; --pend-bg:#48211A; --proc:#F1C165; --proc-bg:#3E2F10; --ok:#80D4A4; --ok-bg:#163627;
+    --stamp-bg:rgba(5,10,13,.8); --stamp-fg:#EDF2F5; --scrim:rgba(0,0,0,.65);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#2B3A45;
+  --accent:#62B6E2; --accent-ink:#06202E; --accent-soft:#173546;
+  --pend:#FF9480; --pend-bg:#48211A; --proc:#F1C165; --proc-bg:#3E2F10; --ok:#80D4A4; --ok-bg:#163627;
+  --stamp-bg:rgba(5,10,13,.8); --stamp-fg:#EDF2F5; --scrim:rgba(0,0,0,.65);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--f-body)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+
+.wrap{max-width:1240px;margin-inline:auto;padding-inline:16px;padding-block:20px 56px;display:flex;flex-direction:column;gap:20px}
+
+/* masthead */
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.top-id{display:flex;flex-direction:column;gap:2px;min-width:0}
+.eyebrow{font:600 12px/1.3 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 34px/1 var(--f-display);letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+.today{color:var(--muted);font-size:14px}
+.who{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:14px;color:var(--muted)}
+.who b{color:var(--ink);font-weight:600;font-size:16px;overflow-wrap:anywhere}
+.wrap > section{display:flex;flex-direction:column;gap:20px}
+.crumb{align-self:flex-start;background:none;border:0;padding:4px 0;cursor:pointer;font:600 12px/1.3 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.crumb:hover{text-decoration:underline;text-underline-offset:3px}
+.entradas{display:flex;flex-direction:column;gap:12px;max-width:780px}
+.entrada{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;width:100%;padding:18px 20px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.entrada:hover{border-color:var(--ink)}
+.entrada-txt{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 260px}
+.entrada-txt strong{font:700 28px/1.05 var(--f-display);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.entrada-txt span{color:var(--muted);font-size:15px}
+.entrada-side{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.entrada-go{font-weight:600;color:var(--accent);white-space:nowrap}
+
+/* controls */
+input[type=text],input[type=date],input[type=time],select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px 10px;min-height:40px;width:100%;max-width:100%}
+textarea{min-height:72px;resize:vertical;display:block}
+input:disabled,select:disabled,textarea:disabled{color:var(--muted);background:var(--sunken)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px 16px;border-radius:4px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--pend);border-color:var(--pend)}
+.btn:disabled{opacity:.55;cursor:default;filter:none}
+.btn svg{flex:none}
+.link{background:none;border:0;padding:4px 0;color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* app shell */
+.app{display:grid;grid-template-columns:310px minmax(0,1fr);gap:28px;align-items:start}
+.rail{display:flex;flex-direction:column;gap:14px;position:sticky;top:calc(env(safe-area-inset-top, 0px) + 12px)}
+.panel{display:flex;flex-direction:column;gap:16px;min-width:0}
+.back{display:none}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static}
+  .app[data-view="home"] .panel{display:none}
+  .app[data-view="panel"] .rail{display:none}
+  .back{display:inline-flex}
+}
+
+/* totals: also the legend for the count badges below */
+.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.total{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-left:1px solid var(--line);min-width:0}
+.total:first-child{border-left:0}
+.total b{font:700 30px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.total span{display:flex;align-items:center;gap:6px;font-size:12.5px;line-height:1.2;color:var(--muted)}
+.key{width:10px;height:10px;border-radius:2px;flex:none}
+.key.pendiente{background:var(--pend)}
+.key.proceso{border:2px solid var(--proc)}
+.key.cerrado{background:var(--ok);border-radius:50%}
+
+.sec-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;background:var(--surface);overflow:hidden}
+.sec{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:8px 12px;background:none;border:0;border-top:1px solid var(--line);text-align:left;cursor:pointer}
+.sec:first-child{border-top:0}
+.sec:hover{background:var(--accent-soft)}
+.sec[aria-current="true"]{background:var(--accent-soft);box-shadow:inset 4px 0 0 var(--accent)}
+.sec-name{font:600 19px/1.15 var(--f-display);letter-spacing:.02em;text-transform:uppercase;min-width:0}
+.sec.all .sec-name{color:var(--accent)}
+.sec-counts{display:flex;gap:6px;align-items:center;flex:none}
+.n{min-width:26px;height:24px;padding:0 6px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font:600 14px/1 var(--f-body);font-variant-numeric:tabular-nums}
+.n.pendiente{background:var(--pend);color:var(--surface)}
+.n.proceso{border:2px solid var(--proc);color:var(--proc)}
+.n.zero{color:var(--muted);font-weight:400}
+
+/* panel */
+.panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.panel-title{display:flex;align-items:center;gap:10px;min-width:0}
+.panel-title h2{font:700 28px/1.05 var(--f-display);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.back{min-height:40px;padding:6px 10px}
+.tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:14px;font-weight:500}
+.chip b{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] b{color:var(--bg)}
+.datef{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.datef input{width:auto;min-height:36px;padding:4px 8px}
+
+.notice{padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--proc);border-radius:4px;background:var(--surface);font-size:14px}
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:28px 20px;border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
+.empty strong{color:var(--ink);font:600 20px/1.2 var(--f-display);letter-spacing:.02em;text-transform:uppercase}
+.empty p{max-width:52ch}
+.foot-note{font-size:13px;color:var(--muted)}
+
+/* evidence wall */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;min-width:0;padding:0;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden;cursor:pointer}
+.card:hover{border-color:var(--ink)}
+.shot{position:relative;aspect-ratio:4/3;max-width:100%;background:var(--sunken)}
+.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.shot.nofoto{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+.stamp{position:absolute;left:0;right:0;bottom:0;padding:3px 8px;background:var(--stamp-bg);color:var(--stamp-fg);font:500 11px/1.4 var(--f-body);letter-spacing:.03em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:3px;font:600 12px/1.3 var(--f-body);letter-spacing:.05em;text-transform:uppercase}
+.pill.pendiente{background:var(--pend-bg);color:var(--pend)}
+.pill.proceso{background:var(--proc-bg);color:var(--proc)}
+.pill.cerrado{background:var(--ok-bg);color:var(--ok)}
+.shot .pill{position:absolute;top:6px;left:6px}
+.card-fix{font-size:12.5px;font-weight:600;color:var(--ok)}
+.card-body{display:flex;flex-direction:column;gap:3px;padding:8px 10px 10px;min-width:0}
+.card-sec{font:600 13px/1.2 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.card-desc{font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.card-desc.none{color:var(--muted);font-style:italic}
+.card-resp{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+
+/* dialogs */
+dialog{border:1px solid var(--line);border-radius:8px;padding:0;background:var(--surface);color:var(--ink);width:min(660px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);overflow:hidden}
+dialog[open]{display:flex;flex-direction:column}
+dialog::backdrop{background:var(--scrim)}
+.dlg-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex:none}
+.dlg-head h3{font:700 22px/1.1 var(--f-display);letter-spacing:.02em;text-transform:uppercase}
+.x{width:40px;height:40px;border-radius:4px;border:1px solid var(--line);background:none;cursor:pointer;font-size:20px;line-height:1;flex:none}
+.dlg-body{display:flex;flex-direction:column;gap:16px;padding:16px;overflow:auto;min-height:0}
+.dlg-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-top:1px solid var(--line);flex:none}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field > label,.label{font:600 12px/1.3 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.row2{grid-template-columns:minmax(0,1fr)}}
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.prev{position:relative;aspect-ratio:1;max-width:100%;border-radius:4px;overflow:hidden;background:var(--sunken)}
+.prev img{width:100%;height:100%;object-fit:cover;display:block}
+.prev button{position:absolute;top:3px;right:3px;width:26px;height:26px;border-radius:3px;border:0;background:var(--stamp-bg);color:var(--stamp-fg);cursor:pointer;font-size:16px;line-height:1}
+.hint{font-size:13px;color:var(--muted)}
+.top-side{display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+@media (min-width:700px){.top-side{align-items:flex-end}}
+.sync{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.instalar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;max-width:780px;font-size:14px;color:var(--muted)}
+.notice{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.check{display:flex;align-items:center;gap:10px;min-height:40px;cursor:pointer}
+.check input{width:20px;height:20px;flex:none;accent-color:var(--accent)}
+.err{font-size:14px;color:var(--pend);font-weight:500}
+.status{font-size:14px;color:var(--muted)}
+
+.fotos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.fotos figure{margin:0;display:flex;flex-direction:column;gap:5px;min-width:0}
+.fotos img{display:block;width:100%;max-height:52vh;object-fit:contain;background:var(--sunken);border-radius:4px}
+.fotos figcaption{font-size:12.5px;color:var(--muted);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.seg button{min-height:46px;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font:600 14px/1.2 var(--f-body);letter-spacing:.04em;text-transform:uppercase}
+.seg button[aria-pressed="true"].pendiente{background:var(--pend-bg);border-color:var(--pend);color:var(--pend)}
+.seg button[aria-pressed="true"].proceso{background:var(--proc-bg);border-color:var(--proc);color:var(--proc)}
+.seg button[aria-pressed="true"].cerrado{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.seg button:disabled{cursor:default;opacity:.7}
+.meta{font-size:14px;color:var(--muted)}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px;font-variant-numeric:tabular-nums}
+.hist li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.hist time{color:var(--muted);min-width:92px}
+.confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
+
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom, 0px) + 18px);transform:translateX(-50%);max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);font-size:14px;font-weight:500;z-index:10}
+@media (prefers-reduced-motion: no-preference){.btn,.chip,.sec,.card{transition:border-color .12s,background-color .12s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section id="inicio">
+    <header class="top">
+      <div class="top-id">
+        <span class="eyebrow">COOPAGRO</span>
+        <h1>Calidad</h1>
+        <span class="today" id="today"></span>
+      </div>
+    </header>
+    <div class="entradas" id="entradas"></div>
+    <div class="instalar" id="instalar" hidden>
+      <span id="instalarTxt"></span>
+      <button type="button" class="btn" id="instalarBtn" hidden>Instalar en este teléfono</button>
+    </div>
+  </section>
+
+  <section id="preop" hidden>
+    <header class="top">
+      <div class="top-id">
+        <button type="button" class="crumb" id="volverInicio">‹ Calidad COOPAGRO</button>
+        <h1>Verificación preoperacional</h1>
+        <span class="today" id="today2"></span>
+      </div>
+      <div class="top-side">
+        <div class="who">Verifica <b id="quienNombre"></b>
+          <button type="button" class="link" id="cambiarQuien">Cambiar</button>
+        </div>
+        <div class="sync"><span id="syncTxt"></span><button type="button" class="link" id="syncBtn">Actualizar</button></div>
+      </div>
+    </header>
+    <div class="app" id="app" data-view="home">
+      <nav class="rail" aria-label="Sectores de planta">
+        <div class="totals" id="totals"></div>
+        <div class="sec-list" id="secList"></div>
+      </nav>
+      <main class="panel" id="panel"></main>
+    </div>
+  </section>
+</div>
+
+<dialog id="dlgQuien" aria-labelledby="quienTitulo">
+  <form id="formQuien" novalidate style="display:contents">
+    <div class="dlg-head">
+      <h3 id="quienTitulo">Verificación preoperacional</h3>
+      <button type="button" class="x" id="quienCerrar" aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body">
+      <div class="field" id="qClaveCampo" hidden>
+        <label for="qClave">Clave de acceso</label>
+        <input type="text" id="qClave" maxlength="40" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <span class="hint">Te la pasa quien administra la app. Se pide una sola vez en cada teléfono.</span>
+      </div>
+      <div class="field">
+        <label for="qNombre">Tu nombre</label>
+        <input type="text" id="qNombre" maxlength="40" autocomplete="off" placeholder="Nombre y apellido">
+        <div class="chips" id="qNombres"></div>
+        <span class="hint">Los desvíos que cargues y los cambios de estado que hagas quedan registrados a tu nombre.</span>
+      </div>
+      <p class="err" id="qErr" hidden></p>
+    </div>
+    <div class="dlg-foot">
+      <span class="status"></span>
+      <button type="submit" class="btn primary" id="qEntrar">Entrar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgNuevo" aria-labelledby="nuevoTitulo">
+  <form id="formNuevo" novalidate style="display:contents">
+    <div class="dlg-head">
+      <h3 id="nuevoTitulo">Cargar desvío</h3>
+      <button type="button" class="x" id="nuevoCerrar" aria-label="Cerrar">×</button>
+    </div>
+    <div class="dlg-body">
+      <div class="field">
+        <span class="label">Fotos</span>
+        <div class="pick">
+          <label class="btn primary" for="fotoCam"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Sacar foto</label>
+          <input type="file" id="fotoCam" accept="image/*" capture="environment">
+          <label class="btn" for="fotoGal">Elegir de la galería</label>
+          <input type="file" id="fotoGal" accept="image/*" multiple>
+        </div>
+        <div class="previews" id="previews"></div>
+        <span class="hint">Podés cargar varias fotos juntas. Cada foto queda como un desvío con su propio estado.</span>
+      </div>
+      <div class="field">
+        <label for="nSector">Sector</label>
+        <select id="nSector" required></select>
+      </div>
+      <div class="field">
+        <label for="nDesc">Descripción del desvío</label>
+        <textarea id="nDesc" maxlength="600" placeholder="Qué se encontró y dónde"></textarea>
+      </div>
+      <div class="field">
+        <label for="nResp">Responsable de resolverlo</label>
+        <input type="text" id="nResp" list="respList" maxlength="60" placeholder="Persona o área">
+      </div>
+      <div class="field">
+        <span class="label">Fecha y hora del desvío</span>
+        <span class="hint" id="nHoraHint"></span>
+        <label class="check" for="nManual"><input type="checkbox" id="nManual">Poner la fecha y la hora a mano</label>
+      </div>
+      <div class="row2" id="nManualRow" hidden>
+        <div class="field">
+          <label for="nFecha">Fecha</label>
+          <input type="date" id="nFecha">
+        </div>
+        <div class="field">
+          <label for="nHora">Hora</label>
+          <input type="time" id="nHora">
+        </div>
+      </div>
+      <div class="field">
+        <label for="nTurno">Turno</label>
+        <select id="nTurno">
+          <option value="">Según la hora del desvío</option>
+          <option value="manana">Mañana</option>
+          <option value="tarde">Tarde</option>
+          <option value="noche">Noche</option>
+        </select>
+      </div>
+      <p class="err" id="nErr" hidden></p>
+    </div>
+    <div class="dlg-foot">
+      <span class="status" id="nStatus"></span>
+      <button type="submit" class="btn primary" id="nGuardar">Guardar desvío</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgDetalle" aria-labelledby="detTitulo">
+  <div class="dlg-head">
+    <h3 id="detTitulo">Desvío</h3>
+    <button type="button" class="x" id="detCerrar" aria-label="Cerrar">×</button>
+  </div>
+  <div class="dlg-body" id="detBody"></div>
+</dialog>
+
+<datalist id="respList"></datalist>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="config.js"></script>
+<script>
+(() => {
+  const SECTORES = [
+    ['recibo', 'Recibo'],
+    ['filtro-secundario', 'Filtro sanitario secundario'],
+    ['trat-leche', 'Tratamiento de leche'],
+    ['trat-suero', 'Tratamiento de suero'],
+    ['tinas', 'Tinas'],
+    ['adc', 'ADC'],
+    ['cooker', 'Cooker / Carrousel'],
+    ['saladero', 'Saladero'],
+    ['final-linea', 'Final de línea'],
+    ['expedicion', 'Expedición'],
+    ['filtro-principal', 'Filtro principal'],
+    ['espacios-comunes', 'Espacios comunes'],
+    ['filtro-expedicion', 'Filtro expedición'],
+  ];
+  const NOMBRE = Object.fromEntries(SECTORES);
+  const ESTADOS = { pendiente: ['Pendiente', 'Pendientes'], proceso: ['En proceso', 'En proceso'], cerrado: ['Cerrado', 'Cerrados'] };
+  const TURNOS = { manana: 'Mañana', tarde: 'Tarde', noche: 'Noche' };
+  const ORIGEN_TXT = { foto: 'Hora tomada de la foto.', archivo: 'La foto no traía guardada la hora en que se sacó: se usó la del archivo.', carga: 'La foto no traía hora: se usó la del momento de la carga.', manual: 'Fecha y hora puestas a mano.' };
+  const API = (window.CALIDAD_CONFIG && window.CALIDAD_CONFIG.api) || '';
+  const PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+  const $ = id => document.getElementById(id);
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, '');
+      else el.setAttribute(k, v);
+    }
+    for (const c of kids.flat()) {
+      if (c == null || c === false) continue;
+      el.append(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+    return el;
+  }
+  const pad = n => String(n).padStart(2, '0');
+  const iso = () => new Date().toISOString();
+  const fechaDe = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const hoy = () => fechaDe(new Date());
+  const turnoDe = d => { const hr = d.getHours(); return hr >= 6 && hr < 14 ? 'manana' : hr >= 14 && hr < 22 ? 'tarde' : 'noche'; };
+  const turnoAhora = () => turnoDe(new Date());
+  // The desvío's own moment: the photo's time, or the one typed by hand.
+  const momentoDe = d => d.momento || d.creado || '';
+  const hora = t => { const d = new Date(t); return isNaN(d) ? '' : pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  const diaMes = f => { const p = String(f || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] : ''; };
+  const diaHora = t => { const d = new Date(t); return isNaN(d) ? '' : pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' ' + hora(t); };
+  const sello = d => [diaMes(d.fecha), hora(momentoDe(d)), TURNOS[d.turno] ? '· ' + TURNOS[d.turno] : ''].filter(Boolean).join(' ');
+  const lsGet = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  const S = {
+    sector: 'todos', view: 'home', filtro: 'todos', fecha: '',
+    pantalla: 'inicio', conexion: 'cargando', puedeEscribir: true, quien: '',
+    items: [], porId: new Map(), cerradosTotal: 0, maxCerrados: 150, actualizado: null, sincronizando: false,
+    clave: lsGet('calidad.clave'),
+    detalle: null, confirmar: false, nuevas: [], guardando: false,
+  };
+  const fullCache = new Map();
+  const colas = new Map();
+
+  /* ---------- data ---------- */
+  function indexar() {
+    S.items.sort((a, b) => momentoDe(b).localeCompare(momentoDe(a)) || String(b.creado || '').localeCompare(String(a.creado || '')));
+    S.porId = new Map(S.items.map(d => [d.id, d]));
+  }
+  // Last list seen on this phone, so the app opens with something even without signal.
+  function guardarCache() {
+    const txt = JSON.stringify({ desvios: S.items, cerradosTotal: S.cerradosTotal, maxCerrados: S.maxCerrados, t: S.actualizado ? S.actualizado.getTime() : 0 });
+    try { localStorage.setItem('calidad.cache', txt); } catch (e) { try { localStorage.removeItem('calidad.cache'); } catch (e2) {} }
+  }
+  function fijarLista(out) {
+    S.items = Array.isArray(out.desvios) ? out.desvios.filter(d => d && d.id && ESTADOS[d.estado]) : [];
+    S.cerradosTotal = out.cerradosTotal || 0;
+    S.maxCerrados = out.maxCerrados || 150;
+    indexar();
+  }
+  function ponerLocal(d) {
+    if (!d || !d.id || !ESTADOS[d.estado]) return;
+    const i = S.items.findIndex(x => x.id === d.id);
+    if (i >= 0) S.items[i] = d; else S.items.push(d);
+    indexar();
+  }
+  function ponerUno(d) { ponerLocal(d); guardarCache(); }
+  function quitarUno(id) { S.items = S.items.filter(x => x.id !== id); indexar(); guardarCache(); }
+  const nuevoId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'd' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+
+  // Every call goes to the Google registro with the access key.
+  async function api(accion, datos, opts) {
+    if (!API) throw { code: 'config' };
+    let out = null;
+    try {
+      const res = await fetch(API, {
+        method: 'POST', redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ accion, clave: S.clave }, datos || {})),
+      });
+      out = await res.json();
+    } catch (e) { throw { code: 'red' }; }
+    if (!out || !out.ok) {
+      const code = (out && out.error) || 'interno';
+      if (code === 'clave' && !(opts && opts.sinAviso)) claveRechazada();
+      throw { code };
+    }
+    return out;
+  }
+  function claveRechazada() {
+    S.clave = ''; lsSet('calidad.clave', '');
+    try { localStorage.removeItem('calidad.cache'); } catch (e) {}
+    S.items = []; indexar();
+    for (const d of [dlgN, dlgD]) if (d.open) d.close();
+    salir();
+    toast('La clave de acceso cambió. Volvé a entrar con la nueva.');
+  }
+  let refrescando = null;
+  function refrescar() {
+    if (!S.clave || !API) return Promise.resolve();
+    if (refrescando) return refrescando;
+    S.sincronizando = true; pintarSync();
+    refrescando = api('listar').then(out => {
+      fijarLista(out); S.conexion = 'ok'; S.actualizado = new Date(); guardarCache();
+    }, e => { if (e.code !== 'clave') S.conexion = 'error'; }).then(() => {
+      refrescando = null; S.sincronizando = false; pintar();
+    });
+    return refrescando;
+  }
+  function enCola(id, fn) {
+    const p = (colas.get(id) || Promise.resolve()).then(fn, fn);
+    colas.set(id, p.catch(() => {}));
+    return p;
+  }
+  function msgError(e) {
+    const c = e && e.code;
+    if (c === 'red') return 'No hay conexión con el registro. Revisá la señal y probá de nuevo.';
+    if (c === 'clave') return 'La clave de acceso cambió. Volvé a entrar con la nueva.';
+    if (c === 'config') return 'La app todavía no está conectada al registro de desvíos.';
+    if (c === 'too_large') return 'La foto es demasiado pesada para guardarla.';
+    if (c === 'unsupported_type') return 'Ese archivo no es una foto que se pueda guardar.';
+    if (c === 'noexiste') return 'Ese desvío ya no está en el registro. Tocá Actualizar.';
+    return 'No se pudo guardar. Probá de nuevo en un momento.';
+  }
+
+  /* ---------- photo time ---------- */
+  function leerTiff(v, base, fin) {
+    const le = v.getUint16(base) === 0x4949;
+    const u16 = p => v.getUint16(p, le), u32 = p => v.getUint32(p, le);
+    const ifd = p => {
+      const out = {};
+      if (p + 2 > fin) return out;
+      const n = u16(p);
+      for (let i = 0; i < n; i++) { const e = p + 2 + i * 12; if (e + 12 > fin) break; out[u16(e)] = { tipo: u16(e + 2), n: u32(e + 4), val: e + 8 }; }
+      return out;
+    };
+    const texto = t => {
+      if (!t || t.tipo !== 2) return '';
+      const p = t.n > 4 ? base + u32(t.val) : t.val;
+      let s = '';
+      for (let i = 0; i < t.n && p + i < fin; i++) { const c = v.getUint8(p + i); if (!c) break; s += String.fromCharCode(c); }
+      return s;
+    };
+    const i0 = ifd(base + u32(base + 4));
+    let s = '';
+    if (i0[0x8769]) { const ex = ifd(base + u32(i0[0x8769].val)); s = texto(ex[0x9003]) || texto(ex[0x9004]); }
+    s = s || texto(i0[0x0132]);
+    const m = s.match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+    return isNaN(d) ? null : d;
+  }
+  // When the camera took the picture, read from the photo's own data (EXIF).
+  async function horaExif(file) {
+    try {
+      const v = new DataView(await file.slice(0, 262144).arrayBuffer());
+      if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return null;
+      let o = 2;
+      while (o + 4 <= v.byteLength) {
+        if (v.getUint8(o) !== 0xFF) return null;
+        const marca = v.getUint8(o + 1), len = v.getUint16(o + 2);
+        if (marca === 0xE1 && o + 10 <= v.byteLength && v.getUint32(o + 4) === 0x45786966 && v.getUint16(o + 8) === 0)
+          return leerTiff(v, o + 10, Math.min(v.byteLength, o + 2 + len));
+        if (marca === 0xDA) return null;
+        o += 2 + len;
+      }
+    } catch (e) {}
+    return null;
+  }
+  async function horaDeFoto(file) {
+    const ahora = Date.now();
+    const vale = d => d && d.getTime() > 946684800000 && d.getTime() < ahora + 86400000;
+    const ex = await horaExif(file);
+    if (vale(ex)) return { t: ex, origen: 'foto' };
+    const lm = file.lastModified ? new Date(file.lastModified) : null;
+    if (vale(lm)) return { t: lm, origen: 'archivo' };
+    return { t: new Date(), origen: 'carga' };
+  }
+
+  /* ---------- photos ---------- */
+  async function abrirImagen(file) {
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) {}
+    }
+    return await new Promise((res, rej) => {
+      const url = URL.createObjectURL(file), im = new Image();
+      im.onload = () => { URL.revokeObjectURL(url); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej({ code: 'unsupported_type' }); };
+      im.src = url;
+    });
+  }
+  function escalar(src, max) {
+    const k = Math.min(1, max / Math.max(src.width, src.height));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(src.width * k));
+    c.height = Math.max(1, Math.round(src.height * k));
+    c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+    return c;
+  }
+  const aBlob = (c, q) => new Promise(r => c.toBlob(r, 'image/jpeg', q));
+  const aDataURL = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+
+  // The small thumb travels with the list; the full photo is kept in Drive.
+  async function prepararFoto(file) {
+    const img = await abrirImagen(file);
+    let thumb = '', q = 0.6;
+    for (let i = 0; i < 4; i++) { thumb = escalar(img, 260).toDataURL('image/jpeg', q); if (thumb.length < 40000) break; q -= 0.12; }
+    if (thumb.length >= 46000) thumb = escalar(img, 150).toDataURL('image/jpeg', 0.5);
+    const full = escalar(img, 1400).toDataURL('image/jpeg', 0.8);
+    if (!/^data:image\/jpeg;base64,/.test(full)) throw { code: 'unsupported_type' };
+    return { thumb, full };
+  }
+  function fotoCompleta(id) {
+    if (!fullCache.has(id)) {
+      if (fullCache.size > 30) fullCache.delete(fullCache.keys().next().value);
+      const p = api('foto', { fotoId: id }).then(out => {
+        if (typeof out.data !== 'string' || !out.data.startsWith('data:image/')) throw { code: 'interno' };
+        return out.data;
+      });
+      p.catch(() => fullCache.delete(id));
+      fullCache.set(id, p);
+    }
+    return fullCache.get(id);
+  }
+  function imgGrande(f, alt) {
+    const img = h('img', { alt, src: f.thumb || PIXEL });
+    if (f.id) fotoCompleta(f.id).then(data => { img.src = data; }, () => {});
+    return img;
+  }
+
+  /* ---------- rail ---------- */
+  function conteos() {
+    const c = { todos: { pendiente: 0, proceso: 0, cerrado: 0 } };
+    for (const [s] of SECTORES) c[s] = { pendiente: 0, proceso: 0, cerrado: 0 };
+    for (const d of S.items) {
+      if (!(d.estado in c.todos)) continue;
+      c.todos[d.estado]++;
+      if (c[d.sector]) c[d.sector][d.estado]++;
+    }
+    return c;
+  }
+  function pintarRail() {
+    const c = conteos();
+    const masCerr = S.cerradosTotal > S.maxCerrados;
+    $('totals').replaceChildren(...['pendiente', 'proceso', 'cerrado'].map(e =>
+      h('div', { class: 'total' },
+        h('b', null, c.todos[e] + (e === 'cerrado' && masCerr ? '+' : '')),
+        h('span', null, h('i', { class: 'key ' + e }), ESTADOS[e][1]))));
+    const fila = (slug, nombre, k, extra) => h('button', {
+      type: 'button', class: 'sec' + (extra || ''), 'aria-current': S.sector === slug ? 'true' : null,
+      onclick: () => elegirSector(slug),
+    },
+      h('span', { class: 'sec-name' }, nombre),
+      h('span', { class: 'sec-counts' },
+        k.pendiente ? h('span', { class: 'n pendiente', title: k.pendiente + ' pendientes', 'aria-label': k.pendiente + ' pendientes' }, k.pendiente) : null,
+        k.proceso ? h('span', { class: 'n proceso', title: k.proceso + ' en proceso', 'aria-label': k.proceso + ' en proceso' }, k.proceso) : null,
+        !k.pendiente && !k.proceso ? h('span', { class: 'n zero', title: 'Sin desvíos abiertos', 'aria-label': 'Sin desvíos abiertos' }, '0') : null));
+    $('secList').replaceChildren(
+      fila('todos', 'Todos los sectores', c.todos, ' all'),
+      ...SECTORES.map(([slug, nombre]) => fila(slug, nombre, c[slug])));
+  }
+  function elegirSector(slug) {
+    S.sector = slug; S.view = 'panel'; S.filtro = 'todos';
+    try { history.replaceState(null, '', '#' + slug); } catch (e) {}
+    pintar();
+    if (window.matchMedia('(max-width:860px)').matches) window.scrollTo(0, 0);
+  }
+
+  /* ---------- panel ---------- */
+  function pintarPanel() {
+    const enSector = S.items.filter(d => (S.sector === 'todos' || d.sector === S.sector) && (!S.fecha || d.fecha === S.fecha));
+    const cuenta = { todos: enSector.length, pendiente: 0, proceso: 0, cerrado: 0 };
+    for (const d of enSector) if (d.estado in cuenta) cuenta[d.estado]++;
+    const visibles = S.filtro === 'todos' ? enSector : enSector.filter(d => d.estado === S.filtro);
+    const titulo = S.sector === 'todos' ? 'Todos los sectores' : NOMBRE[S.sector];
+
+    const head = h('div', { class: 'panel-head' },
+      h('div', { class: 'panel-title' },
+        h('button', { type: 'button', class: 'btn back', onclick: () => { S.view = 'home'; pintar(); } }, '‹ Sectores'),
+        h('h2', null, titulo)),
+      API ? h('button', { type: 'button', class: 'btn primary', onclick: abrirNuevo },
+        h('span', { 'aria-hidden': 'true' }, '+'), 'Cargar desvío') : null);
+
+    const chip = (k, label) => h('button', { type: 'button', class: 'chip', 'aria-pressed': S.filtro === k ? 'true' : 'false', onclick: () => { S.filtro = k; pintarPanel(); } }, label, h('b', null, cuenta[k]));
+    const tools = h('div', { class: 'tools' },
+      h('div', { class: 'chips', role: 'group', 'aria-label': 'Filtrar por estado' },
+        chip('todos', 'Todos'), chip('pendiente', 'Pendientes'), chip('proceso', 'En proceso'), chip('cerrado', 'Cerrados')),
+      h('label', { class: 'datef', for: 'fFecha' }, 'Fecha',
+        (() => { const i = h('input', { type: 'date', id: 'fFecha' }); i.value = S.fecha; i.addEventListener('change', () => { S.fecha = i.value; pintarPanel(); }); return i; })(),
+        S.fecha ? h('button', { type: 'button', class: 'link', onclick: () => { S.fecha = ''; pintarPanel(); } }, 'Ver todas') : null));
+
+    const partes = [head, tools];
+    if (!API) partes.push(h('div', { class: 'notice' }, 'La app todavía no está conectada al registro de desvíos.'));
+    if (S.conexion === 'error') partes.push(h('div', { class: 'notice' },
+      h('span', null, 'No se pudo actualizar la lista: no hay conexión con el registro.' + (S.items.length ? ' Se muestra lo último que se vio en este teléfono.' : '')),
+      h('button', { type: 'button', class: 'link', onclick: refrescar }, 'Reintentar')));
+
+    if (S.conexion === 'cargando' && !S.items.length && API) {
+      partes.push(h('div', { class: 'empty' }, h('strong', null, 'Cargando desvíos'), h('p', null, 'Trayendo las fotos relevadas en planta.')));
+    } else if (!visibles.length) {
+      const hayFiltro = S.filtro !== 'todos' || S.fecha;
+      partes.push(h('div', { class: 'empty' },
+        h('strong', null, hayFiltro ? 'Nada con ese filtro' : 'Sin desvíos cargados'),
+        h('p', null, hayFiltro
+          ? 'No hay desvíos en ' + titulo + ' que coincidan con el estado o la fecha elegidos.'
+          : (S.sector === 'todos'
+            ? 'Acá van a aparecer las fotos de los desvíos relevados en cada sector, con su estado. Elegí un sector y tocá Cargar desvío para sumar el primero.'
+            : 'Acá van a aparecer las fotos de los desvíos relevados en ' + titulo + ', con su estado. Tocá Cargar desvío para sumar el primero.'))));
+    } else {
+      partes.push(h('div', { class: 'grid' }, visibles.map(tarjeta)));
+      if (S.cerradosTotal > S.maxCerrados && S.filtro !== 'pendiente' && S.filtro !== 'proceso')
+        partes.push(h('p', { class: 'foot-note' }, 'De los cerrados se muestran los ' + S.maxCerrados + ' más recientes; los anteriores siguen en la planilla. Los pendientes y en proceso se muestran siempre todos.'));
+    }
+    $('panel').replaceChildren(...partes);
+  }
+  function tarjeta(d) {
+    const f = d.foto || {};
+    return h('button', { type: 'button', class: 'card', onclick: () => abrirDetalle(d.id), 'aria-label': 'Desvío ' + ESTADOS[d.estado][0] + ' en ' + (NOMBRE[d.sector] || d.sector) },
+      h('div', { class: 'shot' + (f.thumb ? '' : ' nofoto') },
+        f.thumb ? h('img', { src: f.thumb, alt: '', loading: 'lazy' }) : 'Sin foto',
+        h('span', { class: 'pill ' + d.estado }, ESTADOS[d.estado][0]),
+        h('span', { class: 'stamp' }, sello(d))),
+      h('div', { class: 'card-body' },
+        S.sector === 'todos' ? h('span', { class: 'card-sec' }, NOMBRE[d.sector] || d.sector) : null,
+        h('span', { class: 'card-desc' + (d.descripcion ? '' : ' none') }, d.descripcion || 'Sin descripción'),
+        d.responsable ? h('span', { class: 'card-resp' }, 'Responsable: ' + d.responsable) : null,
+        d.fotoCierre ? h('span', { class: 'card-fix' }, 'Con foto de corrección') : null));
+  }
+
+  /* ---------- new desvío ---------- */
+  const dlgN = $('dlgNuevo'), dlgD = $('dlgDetalle');
+  function abrirNuevo() {
+    $('nSector').value = S.sector === 'todos' ? '' : S.sector;
+    const ya = new Date();
+    $('nManual').checked = false;
+    $('nManualRow').hidden = true;
+    $('nFecha').value = fechaDe(ya);
+    $('nHora').value = pad(ya.getHours()) + ':' + pad(ya.getMinutes());
+    $('nTurno').value = '';
+    $('nErr').hidden = true;
+    $('nStatus').textContent = 'Relevado por ' + S.quien;
+    pintarPreviews();
+    dlgN.showModal();
+  }
+  async function sumarFotos(input) {
+    const files = [...input.files];
+    input.value = '';
+    for (const file of files) {
+      const hf = await horaDeFoto(file);
+      S.nuevas.push({ file, url: URL.createObjectURL(file), t: hf.t, origen: hf.origen });
+    }
+    $('nErr').hidden = true;
+    pintarPreviews();
+  }
+  function pintarPreviews() {
+    $('previews').replaceChildren(...S.nuevas.map((n, i) => h('div', { class: 'prev' },
+      h('img', { src: n.url, alt: 'Foto ' + (i + 1) }),
+      $('nManual').checked ? null : h('span', { class: 'stamp' }, diaHora(n.t)),
+      h('button', { type: 'button', 'aria-label': 'Quitar foto ' + (i + 1), disabled: S.guardando, onclick: () => { URL.revokeObjectURL(n.url); S.nuevas.splice(i, 1); pintarPreviews(); } }, '×'))));
+    $('nGuardar').textContent = S.nuevas.length > 1 ? 'Guardar ' + S.nuevas.length + ' desvíos' : 'Guardar desvío';
+    const sinHora = S.nuevas.filter(n => n.origen !== 'foto').length;
+    $('nHoraHint').textContent = $('nManual').checked
+      ? 'Se registra esta fecha y hora para todas las fotos de esta carga.'
+      : sinHora
+        ? (sinHora === 1 ? 'Una foto no trae' : sinHora + ' fotos no traen') + ' guardada la hora en que se sacó, así que se usa la del archivo. Si no coincide, ponela a mano.'
+        : 'Se registra la fecha y la hora en que se sacó cada foto.';
+  }
+  function errorNuevo(t) { const e = $('nErr'); e.textContent = t; e.hidden = false; }
+  async function guardarNuevo(ev) {
+    ev.preventDefault();
+    if (S.guardando) return;
+    const sector = $('nSector').value;
+    if (!S.nuevas.length) return errorNuevo('Agregá al menos una foto del desvío.');
+    if (!NOMBRE[sector]) return errorNuevo('Elegí el sector donde se encontró el desvío.');
+    const manual = $('nManual').checked;
+    let fijo = null;
+    if (manual) {
+      fijo = new Date($('nFecha').value + 'T' + $('nHora').value);
+      if (!$('nFecha').value || !$('nHora').value || isNaN(fijo)) return errorNuevo('Completá la fecha y la hora del desvío, o destildá la opción para usar las de la foto.');
+    }
+    const turnoFijo = $('nTurno').value;
+    const comun = { sector, descripcion: $('nDesc').value.trim(), responsable: $('nResp').value.trim(), turno: turnoFijo, creadoPor: S.quien };
+    S.guardando = true; $('nGuardar').disabled = true; $('nErr').hidden = true; pintarPreviews();
+    const total = S.nuevas.length;
+    let hechas = 0;
+    try {
+      while (S.nuevas.length) {
+        $('nStatus').textContent = 'Subiendo foto ' + (hechas + 1) + ' de ' + total + '…';
+        const n = S.nuevas[0];
+        // The id is fixed before sending, so a retry never duplicates the desvío.
+        if (!n.id) n.id = nuevoId();
+        if (!n.lista) n.lista = await prepararFoto(n.file);
+        const cuando = fijo || n.t;
+        const out = await api('crear', {
+          desvio: Object.assign({ id: n.id, momento: cuando.toISOString(), origenHora: manual ? 'manual' : n.origen }, comun),
+          foto: n.lista.full, thumb: n.lista.thumb,
+        });
+        ponerUno(out.desvio);
+        URL.revokeObjectURL(n.url);
+        S.nuevas.shift(); hechas++;
+        pintarPreviews();
+      }
+      $('nDesc').value = ''; $('nResp').value = '';
+      dlgN.close();
+      toast((hechas === 1 ? 'Desvío cargado en ' : hechas + ' desvíos cargados en ') + NOMBRE[sector]);
+    } catch (e) {
+      errorNuevo((hechas ? 'Se guardaron ' + hechas + ' de ' + total + '. ' : '') + msgError(e));
+    } finally {
+      S.guardando = false; $('nGuardar').disabled = false; $('nStatus').textContent = 'Relevado por ' + S.quien; pintarPreviews(); pintar();
+    }
+  }
+
+  /* ---------- detail ---------- */
+  function abrirDetalle(id) { S.detalle = id; S.confirmar = false; pintarDetalle(true); if (!dlgD.open) dlgD.showModal(); }
+  function pintarDetalle(forzar) {
+    if (!S.detalle) return;
+    const d = S.porId.get(S.detalle);
+    if (!d) { S.detalle = null; if (dlgD.open) dlgD.close(); return; }
+    const ae = document.activeElement;
+    if (!forzar && ae && dlgD.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && ae.type !== 'file') {
+      const o = $('detOrigen');
+      if (o) o.textContent = ORIGEN_TXT[d.origenHora] || '';
+      return;
+    }
+    const ro = !S.puedeEscribir;
+    const id = d.id;
+    $('detTitulo').textContent = NOMBRE[d.sector] || 'Desvío';
+
+    const fotos = h('div', { class: 'fotos' });
+    if (d.foto) fotos.append(h('figure', null, imgGrande(d.foto, 'Foto del desvío'), h('figcaption', null, 'Desvío · ' + sello(d))));
+    if (d.fotoCierre) fotos.append(h('figure', null, imgGrande(d.fotoCierre, 'Foto de la corrección'), h('figcaption', null, 'Corrección · ' + diaHora(d.fotoCierre.t))));
+
+    const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Estado del desvío' },
+      Object.keys(ESTADOS).map(e => h('button', { type: 'button', class: e, 'aria-pressed': d.estado === e ? 'true' : 'false', disabled: ro, onclick: () => cambiarEstado(id, e) }, ESTADOS[e][0])));
+
+    const campo = (idc, label, tag, valor, key, attrs) => {
+      const el = h(tag, Object.assign({ id: idc, disabled: ro }, attrs || {}));
+      if (tag === 'input') el.type = 'text';
+      el.value = valor || '';
+      el.addEventListener('change', () => guardarCampo(id, { [key]: el.value.trim() }));
+      return h('div', { class: 'field' }, h('label', { for: idc }, label), el);
+    };
+
+    const mom = new Date(momentoDe(d));
+    const inFecha = h('input', { type: 'date', id: 'detFecha', disabled: ro });
+    const inHora = h('input', { type: 'time', id: 'detHora', disabled: ro });
+    inFecha.value = d.fecha || (isNaN(mom) ? '' : fechaDe(mom));
+    inHora.value = isNaN(mom) ? '' : pad(mom.getHours()) + ':' + pad(mom.getMinutes());
+    const cambiarHora = () => {
+      const nuevo = new Date(inFecha.value + 'T' + inHora.value);
+      if (!inFecha.value || !inHora.value || isNaN(nuevo)) return;
+      guardarCampo(id, { momento: nuevo.toISOString(), fecha: fechaDe(nuevo), turno: turnoDe(nuevo), origenHora: 'manual' });
+    };
+    inFecha.addEventListener('change', cambiarHora);
+    inHora.addEventListener('change', cambiarHora);
+
+    const cierreIn = h('input', { type: 'file', id: 'detFotoCierre', accept: 'image/*' });
+    cierreIn.addEventListener('change', () => { if (cierreIn.files[0]) fotoCorreccion(id, cierreIn.files[0]); });
+
+    const hist = (d.historial || []).slice().reverse();
+    const borrar = S.confirmar
+      ? h('div', { class: 'confirm' }, 'Se borra el desvío con sus fotos y no se puede recuperar.',
+          h('button', { type: 'button', class: 'btn danger', onclick: () => eliminar(id) }, 'Sí, eliminar'),
+          h('button', { type: 'button', class: 'btn', onclick: () => { S.confirmar = false; pintarDetalle(true); } }, 'Cancelar'))
+      : h('button', { type: 'button', class: 'link', onclick: () => { S.confirmar = true; pintarDetalle(true); } }, 'Eliminar desvío');
+
+    const body = $('detBody'), sc = body.scrollTop;
+    body.replaceChildren(
+      fotos,
+      h('div', { class: 'field' }, h('span', { class: 'label' }, 'Estado'), seg),
+      h('p', { class: 'meta' }, ['Turno ' + (TURNOS[d.turno] || '').toLowerCase(), d.creadoPor ? 'Relevó ' + d.creadoPor : '', d.creado ? 'Cargado el ' + diaHora(d.creado) : ''].filter(Boolean).join(' · ')),
+      h('div', { class: 'field' },
+        h('div', { class: 'row2' },
+          h('div', { class: 'field' }, h('label', { for: 'detFecha' }, 'Fecha del desvío'), inFecha),
+          h('div', { class: 'field' }, h('label', { for: 'detHora' }, 'Hora del desvío'), inHora)),
+        h('span', { class: 'hint', id: 'detOrigen' }, ORIGEN_TXT[d.origenHora] || '')),
+      campo('detDesc', 'Descripción del desvío', 'textarea', d.descripcion, 'descripcion', { maxlength: 600 }),
+      campo('detResp', 'Responsable de resolverlo', 'input', d.responsable, 'responsable', { list: 'respList', maxlength: 60 }),
+      campo('detAccion', 'Acción correctiva', 'textarea', d.accion, 'accion', { maxlength: 600, placeholder: 'Qué se hizo o qué falta hacer' }),
+      ro ? null : h('div', { class: 'field' },
+        h('span', { class: 'label' }, 'Foto de la corrección'),
+        h('div', { class: 'pick' },
+          h('label', { class: 'btn', for: 'detFotoCierre' }, d.fotoCierre ? 'Cambiar la foto' : 'Agregar foto'), cierreIn),
+        h('span', { class: 'hint', id: 'detFotoMsg' }, 'Sirve como evidencia de que el desvío quedó resuelto.')),
+      hist.length ? h('div', { class: 'field' }, h('span', { class: 'label' }, 'Historial'),
+        h('ul', { class: 'hist' }, hist.map(x => h('li', null,
+          h('time', null, diaHora(x.t)),
+          h('span', { class: 'pill ' + (ESTADOS[x.estado] ? x.estado : 'pendiente') }, (ESTADOS[x.estado] || [x.estado])[0]),
+          x.por ? h('span', null, x.por) : null)))) : null,
+      ro ? null : borrar);
+    body.scrollTop = sc;
+  }
+  // Shows the change at once, then confirms it with the registro; undoes it if saving fails.
+  function aplicar(id, local, pedido, okMsg) {
+    const antes = S.porId.get(id);
+    if (!antes) return;
+    ponerLocal(Object.assign({}, antes, local));
+    pintar();
+    enCola(id, pedido).then(out => { ponerUno(out.desvio); pintar(); toast(okMsg); }, e => {
+      if (e.code !== 'clave') { if (S.porId.has(id)) ponerLocal(antes); pintar(); toast(msgError(e)); refrescar(); }
+    });
+  }
+  function guardarCampo(id, patch) {
+    aplicar(id, patch, () => api('actualizar', { id, cambios: patch, por: S.quien }), 'Guardado');
+  }
+  function cambiarEstado(id, estado) {
+    const d = S.porId.get(id);
+    if (!d || d.estado === estado) return;
+    const now = iso();
+    aplicar(id, { estado, cerradoEn: estado === 'cerrado' ? now : null, historial: (d.historial || []).concat([{ t: now, estado, por: S.quien }]) },
+      () => api('actualizar', { id, cambios: { estado }, por: S.quien }), 'Estado: ' + ESTADOS[estado][0]);
+  }
+  async function fotoCorreccion(id, file) {
+    if (!S.porId.get(id)) return;
+    const msg = $('detFotoMsg');
+    if (msg) msg.textContent = 'Subiendo la foto…';
+    try {
+      const f = await prepararFoto(file);
+      const out = await enCola(id, () => api('fotoCierre', { id, foto: f.full, thumb: f.thumb, por: S.quien }));
+      ponerUno(out.desvio); pintar();
+      toast('Foto de corrección guardada');
+    } catch (e) {
+      const m2 = $('detFotoMsg');
+      if (m2 && e.code !== 'clave') m2.textContent = msgError(e);
+    }
+  }
+  async function eliminar(id) {
+    if (!S.porId.get(id)) return;
+    try {
+      await enCola(id, () => api('eliminar', { id }));
+      quitarUno(id);
+      S.detalle = null; S.confirmar = false;
+      if (dlgD.open) dlgD.close();
+      pintar();
+      toast('Desvío eliminado');
+    } catch (e) { if (e.code !== 'clave') toast(msgError(e)); }
+  }
+
+  /* ---------- shell ---------- */
+  let toastT = 0;
+  function toast(t) {
+    const el = $('toast'); el.textContent = t; el.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2600);
+  }
+  // Entry gate: nobody gets into the section without leaving their name.
+  const dlgQ = $('dlgQuien');
+  function nombresConocidos() {
+    let locales = [];
+    try { locales = JSON.parse(lsGet('calidad.nombres') || '[]'); } catch (e) {}
+    const vistos = S.items.map(d => d.creadoPor);
+    const out = [];
+    for (const n of (Array.isArray(locales) ? locales : []).concat(vistos)) {
+      if (typeof n !== 'string' || !n.trim()) continue;
+      if (!out.some(x => x.toLowerCase() === n.trim().toLowerCase())) out.push(n.trim());
+    }
+    return out.slice(0, 8);
+  }
+  function abrirQuien() {
+    $('qNombre').value = '';
+    $('qClave').value = '';
+    $('qClaveCampo').hidden = !!S.clave;
+    $('qErr').hidden = true;
+    $('qNombres').replaceChildren(...nombresConocidos().map(n => h('button', { type: 'button', class: 'chip', onclick: () => entrarComo(n) }, n)));
+    dlgQ.showModal();
+    (S.clave ? $('qNombre') : $('qClave')).focus();
+  }
+  let entrando = false;
+  async function entrarComo(nombre) {
+    if (entrando) return;
+    const err = t => { const e = $('qErr'); e.textContent = t; e.hidden = false; };
+    const n = String(nombre || '').trim().replace(/\s+/g, ' ');
+    if (n.length < 2) { err('Escribí tu nombre para entrar.'); $('qNombre').focus(); return; }
+    if (!S.clave) {
+      const c = $('qClave').value.trim();
+      if (!c) { err('Escribí la clave de acceso.'); $('qClave').focus(); return; }
+      entrando = true; $('qEntrar').disabled = true; $('qEntrar').textContent = 'Comprobando…'; $('qErr').hidden = true;
+      S.clave = c;
+      try { await api('entrar', null, { sinAviso: true }); lsSet('calidad.clave', c); }
+      catch (e) { S.clave = ''; err(e.code === 'clave' ? 'La clave no es correcta.' : msgError(e)); return; }
+      finally { entrando = false; $('qEntrar').disabled = false; $('qEntrar').textContent = 'Entrar'; }
+    }
+    S.quien = n;
+    let locales = [];
+    try { locales = JSON.parse(lsGet('calidad.nombres') || '[]'); } catch (e) {}
+    if (!Array.isArray(locales)) locales = [];
+    lsSet('calidad.nombres', JSON.stringify([n].concat(locales.filter(x => typeof x === 'string' && x.toLowerCase() !== n.toLowerCase())).slice(0, 8)));
+    S.pantalla = 'preop';
+    if (dlgQ.open) dlgQ.close();
+    if (!S.items.length) S.conexion = 'cargando';
+    pintar();
+    refrescar();
+  }
+  function salir() {
+    S.pantalla = 'inicio'; S.quien = ''; S.view = 'home';
+    pintar();
+    window.scrollTo(0, 0);
+  }
+  function pintarInicio() {
+    const c = conteos().todos;
+    $('entradas').replaceChildren(h('button', { type: 'button', class: 'entrada', onclick: abrirQuien },
+      h('span', { class: 'entrada-txt' },
+        h('strong', null, 'Verificación preoperacional'),
+        h('span', null, 'Desvíos relevados con fotos en los ' + SECTORES.length + ' sectores de planta, con su estado.')),
+      h('span', { class: 'entrada-side' },
+        c.pendiente ? h('span', { class: 'pill pendiente' }, c.pendiente + (c.pendiente === 1 ? ' pendiente' : ' pendientes')) : null,
+        c.proceso ? h('span', { class: 'pill proceso' }, c.proceso + ' en proceso') : null,
+        h('span', { class: 'entrada-go' }, 'Entrar ›'))));
+  }
+  function pintarSync() {
+    $('syncTxt').textContent = S.sincronizando ? 'Actualizando…' : S.actualizado ? 'Actualizado ' + diaHora(S.actualizado) : '';
+    $('syncBtn').hidden = S.sincronizando || !API;
+  }
+  function pintarListas() {
+    const nombres = [...new Set(S.items.map(d => d.responsable).filter(Boolean))].slice(0, 40);
+    $('respList').replaceChildren(...nombres.map(n => h('option', { value: n })));
+  }
+  function pintar() {
+    const dentro = S.pantalla === 'preop' && !!S.quien;
+    $('inicio').hidden = dentro;
+    $('preop').hidden = !dentro;
+    $('quienNombre').textContent = S.quien;
+    $('app').dataset.view = S.view;
+    pintarInicio(); pintarRail(); pintarPanel(); pintarListas(); pintarSync(); pintarDetalle(false);
+  }
+
+  $('today').textContent = $('today2').textContent = (() => {
+    let f = '';
+    try { f = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()); } catch (e) { f = diaMes(hoy()); }
+    return f.charAt(0).toUpperCase() + f.slice(1) + ' · Turno ' + TURNOS[turnoAhora()].toLowerCase();
+  })();
+  $('nSector').replaceChildren(h('option', { value: '' }, 'Elegí el sector'), ...SECTORES.map(([s, n]) => h('option', { value: s }, n)));
+  $('formQuien').addEventListener('submit', e => { e.preventDefault(); entrarComo($('qNombre').value); });
+  $('quienCerrar').addEventListener('click', () => dlgQ.close());
+  $('cambiarQuien').addEventListener('click', abrirQuien);
+  $('volverInicio').addEventListener('click', salir);
+  $('fotoCam').addEventListener('change', e => sumarFotos(e.target));
+  $('fotoGal').addEventListener('change', e => sumarFotos(e.target));
+  $('formNuevo').addEventListener('submit', guardarNuevo);
+  $('nManual').addEventListener('change', e => { $('nManualRow').hidden = !e.target.checked; pintarPreviews(); });
+  $('nuevoCerrar').addEventListener('click', () => { if (!S.guardando) dlgN.close(); });
+  $('detCerrar').addEventListener('click', () => dlgD.close());
+  dlgN.addEventListener('cancel', e => { if (S.guardando) e.preventDefault(); });
+  dlgD.addEventListener('close', () => { S.detalle = null; S.confirmar = false; });
+  for (const dlg of [dlgN, dlgD, dlgQ]) dlg.addEventListener('click', e => { if (e.target === dlg && !S.guardando) dlg.close(); });
+
+  $('syncBtn').addEventListener('click', refrescar);
+
+  const inicial = (location.hash || '').slice(1);
+  if (NOMBRE[inicial]) { S.sector = inicial; S.view = 'panel'; }
+  if (S.clave) {
+    try {
+      const c = JSON.parse(lsGet('calidad.cache') || 'null');
+      if (c && Array.isArray(c.desvios)) { fijarLista(c); S.actualizado = c.t ? new Date(c.t) : null; }
+    } catch (e) {}
+  }
+  pintar();
+  refrescar();
+
+  const viejo = () => !S.actualizado || Date.now() - S.actualizado.getTime() > 60000;
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && viejo()) refrescar(); });
+  setInterval(() => { if (!document.hidden && S.pantalla === 'preop' && !S.guardando && viejo()) refrescar(); }, 120000);
+
+  /* ---------- install ---------- */
+  if ('serviceWorker' in navigator && /^https:|^http:\/\/(localhost|127\.)/.test(location.href)) navigator.serviceWorker.register('sw.js').catch(() => {});
+  const instalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let pedido = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); pedido = e;
+    $('instalarTxt').textContent = 'Podés tener la app en la pantalla del teléfono, con su ícono.';
+    $('instalarBtn').hidden = false; $('instalar').hidden = false;
+  });
+  $('instalarBtn').addEventListener('click', async () => {
+    if (!pedido) return;
+    pedido.prompt();
+    try { await pedido.userChoice; } catch (e) {}
+    pedido = null; $('instalar').hidden = true;
+  });
+  window.addEventListener('appinstalled', () => { $('instalar').hidden = true; });
+  if (!instalada && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    $('instalarTxt').textContent = 'Para instalarla en este iPhone: abrila en Safari, tocá Compartir y elegí "Agregar a inicio".';
+    $('instalar').hidden = false;
+  }
+})();
+</script>
+
+</body>
+</html>
