@@ -64,8 +64,9 @@ h1{font:800 27px/1.08 var(--f-display);letter-spacing:.01em;text-transform:upper
 .wrap > section{display:flex;flex-direction:column;gap:20px}
 .crumb{align-self:flex-start;background:none;border:0;padding:4px 0;cursor:pointer;font:600 12px/1.3 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .crumb:hover{text-decoration:underline;text-underline-offset:3px}
-.entradas{display:flex;flex-wrap:wrap;gap:20px}
-.entrada{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:min(252px,74vw);aspect-ratio:1;max-width:100%;padding:26px;text-align:center;background:var(--surface);border:3px solid var(--accent);border-radius:50%;cursor:pointer}
+.entradas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:520px;margin-inline:auto;width:100%}
+@media (min-width:900px){.entradas{grid-template-columns:repeat(4,minmax(0,1fr));max-width:1000px;gap:24px}}
+.entrada{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.6vw,10px);width:100%;aspect-ratio:1;max-width:100%;padding:9%;text-align:center;background:var(--surface);border:3px solid var(--accent);border-radius:50%;cursor:pointer}
 .logo{display:block;height:clamp(52px,16vw,76px);width:auto;border-radius:6px;border:1px solid var(--line);background:var(--logo-bg)}
 #inicio .top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
 #inicio .top-id{grid-column:2;align-items:center;text-align:center}
@@ -78,9 +79,11 @@ h1{font:800 27px/1.08 var(--f-display);letter-spacing:.01em;text-transform:upper
 #panel .panel-head > .btn.primary{align-self:center}
 .entrada:hover{background:var(--accent-soft)}
 .entrada-txt{display:flex;flex-direction:column;align-items:center;min-width:0}
-.entrada-txt strong{font:800 17px/1.15 var(--f-display);letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+.entrada-txt strong{font:800 clamp(11.5px,3.25vw,17px)/1.15 var(--f-display);letter-spacing:.01em;text-transform:uppercase}
+.entrada .pill{font-size:clamp(9.5px,2.6vw,12px);padding:2px 7px}
+.pill.neutro{background:var(--accent-soft);color:var(--accent)}
 .entrada-txt span{color:var(--muted);font-size:15px}
-.entrada-side{display:flex;flex-direction:column;align-items:center;gap:6px}
+.entrada-side{display:flex;flex-direction:column;align-items:center;gap:clamp(3px,1vw,6px)}
 .entrada-go{font-weight:600;color:var(--accent);white-space:nowrap}
 
 /* controls */
@@ -223,7 +226,7 @@ dialog::backdrop{background:var(--scrim)}
 @media (prefers-reduced-motion: no-preference){.btn,.chip,.sec,.card{transition:border-color .12s,background-color .12s}}
 
 /* tareas pendientes y partes */
-@media (max-width:560px){.entradas{justify-content:center}}
+@media (max-width:560px){.entrada-go{display:none}}
 .tareas{display:flex;flex-direction:column;gap:16px;max-width:860px}
 .tabs{display:flex;flex-wrap:wrap;border-bottom:2px solid var(--line)}
 .tab{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer;font:700 15.5px/1.1 var(--f-display);color:var(--muted)}
@@ -457,33 +460,17 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
 <script src="config.js"></script>
 <script>
 (() => {
-  const SECTORES = [
-    ['recibo', 'Recibo'],
-    ['filtro-secundario', 'Filtro sanitario secundario'],
-    ['trat-leche', 'Tratamiento de leche'],
-    ['trat-suero', 'Tratamiento de suero'],
-    ['tinas', 'Tinas'],
-    ['adc', 'ADC'],
-    ['cooker', 'Cooker / Carrousel'],
-    ['saladero', 'Saladero'],
-    ['final-linea', 'Final de línea'],
-    ['expedicion', 'Expedición'],
-    ['filtro-principal', 'Filtro principal'],
-    ['espacios-comunes', 'Espacios comunes'],
-    ['filtro-expedicion', 'Filtro expedición'],
-  ];
-  const NOMBRE = Object.fromEntries(SECTORES);
+  // The sector list lives in the Google sheet (tab Sectores); this is only the starting point.
+  let SECTORES = ["Recibo", "Filtro sanitario secundario", "Tratamiento de leche", "Tratamiento de suero", "Tinas", "ADC", "Cooker / Carrousel", "Saladero", "Filtro expedición", "Expedición", "Final de línea", "Espacios comunes", "Exteriores", "Filtro principal"].map(n => [n, n]);
+  let NOMBRE = Object.fromEntries(SECTORES);
   const ESTADOS = { pendiente: ['Pendiente', 'Pendientes'], proceso: ['En proceso', 'En proceso'], cerrado: ['Cerrado', 'Cerrados'] };
   const TURNOS = { manana: 'Mañana', tarde: 'Tarde', noche: 'Noche' };
-  // What a desvío gives rise to: [key, full label, short label for cards].
-  const GENERA = [
-    ['verbal', 'Comunicación verbal', 'Verbal'],
-    ['repro', 'Comunicación por RE-PRO', 'RE-PRO'],
-    ['poes', 'Comunicación por registro de POES', 'POES'],
-    ['lupMejora', 'LUP caso de mejora', 'LUP mejora'],
-    ['lupAperc', 'LUP apercibimiento', 'LUP apercibimiento'],
-  ];
-  const TITULOS = { preop: 'Verificación preoperacional', tareas: 'Tareas pendientes y partes' };
+  // What a desvío can give rise to; the list lives in the sheet (tab "Qué genera").
+  let OPC_GENERA = ["Comunicación verbal", "Comunicación por RE-PRO", "Comunicación por registro de POES", "LUP caso de mejora", "LUP caso de problema", "Apercibimiento"];
+  const esRepro = l => /RE-?PRO/i.test(l);
+  const TITULOS = { preop: 'Verificación preoperacional', op: 'Verificación operacional', partes: 'Partes diarios', pendientes: 'Pendientes' };
+  const esVerif = p => p === 'preop' || p === 'op';
+  const esTareas = p => p === 'partes' || p === 'pendientes';
   const EST_T = { pendiente: ['Pendiente', 'Pendientes'], proceso: ['En proceso', 'En proceso'], resuelta: ['Resuelta', 'Resueltas'] };
   const ORIGEN_TXT = { foto: 'Hora tomada de la foto.', archivo: 'La foto no traía guardada la hora en que se sacó: se usó la del archivo.', carga: 'La foto no traía hora: se usó la del momento de la carga.', manual: 'Fecha y hora puestas a mano.' };
   const API = (window.CALIDAD_CONFIG && window.CALIDAD_CONFIG.api) || '';
@@ -527,8 +514,8 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     items: [], porId: new Map(), cerradosTotal: 0, maxCerrados: 150, actualizado: null, sincronizando: false,
     clave: lsGet('calidad.clave'),
     detalle: null, confirmar: false, nuevas: [], guardando: false, nGenera: { genera: [], repro: '' },
-    destino: 'preop', tareas: [], tPorId: new Map(), resueltasTotal: 0, maxResueltas: 300,
-    tVista: 'pendientes', tEstado: { pendientes: 'todas', dia: 'todas', historial: 'todas' },
+    destino: 'preop', tipo: 'preop', tareas: [], tPorId: new Map(), resueltasTotal: 0, maxResueltas: 300,
+    tVista: 'dia', tEstado: { pendientes: 'todas', dia: 'todas', historial: 'todas' },
     tDia: '', tDesde: '', tHasta: '', tHilos: {}, tBorr: {}, tConfirmar: null, tEditResp: null, tNuevaId: null, tGuardando: false,
   };
   const fullCache = new Map();
@@ -541,7 +528,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
   // Last list seen on this phone, so the app opens with something even without signal.
   function guardarCache() {
-    const txt = JSON.stringify({ desvios: S.items, cerradosTotal: S.cerradosTotal, maxCerrados: S.maxCerrados, tareas: S.tareas, resueltasTotal: S.resueltasTotal, maxResueltas: S.maxResueltas, t: S.actualizado ? S.actualizado.getTime() : 0 });
+    const txt = JSON.stringify({ desvios: S.items, cerradosTotal: S.cerradosTotal, maxCerrados: S.maxCerrados, sectores: SECTORES.map(x => x[0]), opcionesGenera: OPC_GENERA, tareas: S.tareas, resueltasTotal: S.resueltasTotal, maxResueltas: S.maxResueltas, t: S.actualizado ? S.actualizado.getTime() : 0 });
     try { localStorage.setItem('calidad.cache', txt); } catch (e) { try { localStorage.removeItem('calidad.cache'); } catch (e2) {} }
   }
   function fijarLista(out) {
@@ -550,6 +537,17 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     S.maxCerrados = out.maxCerrados || 150;
     indexar();
     fijarTareas(out);
+    if (Array.isArray(out.sectores)) fijarSectores(out.sectores);
+    if (Array.isArray(out.opcionesGenera)) { const g = out.opcionesGenera.map(x => String(x || '').trim()).filter(Boolean); if (g.length) OPC_GENERA = g; }
+  }
+  function fijarSectores(lista) {
+    const limpia = lista.map(n => String(n || '').trim()).filter(Boolean);
+    if (!limpia.length) return;
+    SECTORES = limpia.map(n => [n, n]);
+    NOMBRE = Object.fromEntries(SECTORES);
+    const sel = $('nSector'), antes = sel.value;
+    sel.replaceChildren(h('option', { value: '' }, 'Elegí el sector'), ...SECTORES.map(([v, n]) => h('option', { value: v }, n)));
+    sel.value = NOMBRE[antes] ? antes : '';
   }
   function ponerLocal(d) {
     if (!d || !d.id || !ESTADOS[d.estado]) return;
@@ -723,10 +721,12 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
 
   /* ---------- rail ---------- */
-  function conteos() {
+  // Desvíos of one verification; rows from before the split count as preoperacional.
+  const delTipo = tipo => S.items.filter(d => (d.tipo === 'op' ? 'op' : 'preop') === (tipo || S.tipo));
+  function conteos(tipo) {
     const c = { todos: { pendiente: 0, proceso: 0, cerrado: 0 } };
     for (const [s] of SECTORES) c[s] = { pendiente: 0, proceso: 0, cerrado: 0 };
-    for (const d of S.items) {
+    for (const d of delTipo(tipo)) {
       if (!(d.estado in c.todos)) continue;
       c.todos[d.estado]++;
       if (c[d.sector]) c[d.sector][d.estado]++;
@@ -755,18 +755,18 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
   function elegirSector(slug) {
     S.sector = slug; S.view = 'panel'; S.filtro = 'todos';
-    try { history.replaceState(null, '', '#' + slug); } catch (e) {}
+    try { history.replaceState(null, '', '#' + encodeURIComponent(slug)); } catch (e) {}
     pintar();
     if (window.matchMedia('(max-width:860px)').matches) window.scrollTo(0, 0);
   }
 
   /* ---------- panel ---------- */
   function pintarPanel() {
-    const enSector = S.items.filter(d => (S.sector === 'todos' || d.sector === S.sector) && (!S.fecha || d.fecha === S.fecha));
+    const enSector = delTipo().filter(d => (S.sector === 'todos' || d.sector === S.sector) && (!S.fecha || d.fecha === S.fecha));
     const cuenta = { todos: enSector.length, pendiente: 0, proceso: 0, cerrado: 0 };
     for (const d of enSector) if (d.estado in cuenta) cuenta[d.estado]++;
     const visibles = S.filtro === 'todos' ? enSector : enSector.filter(d => d.estado === S.filtro);
-    const titulo = S.sector === 'todos' ? 'Todos los sectores' : NOMBRE[S.sector];
+    const titulo = S.sector === 'todos' ? 'Todos los sectores' : (NOMBRE[S.sector] || S.sector);
 
     const head = h('div', { class: 'panel-head' },
       h('div', { class: 'panel-title' },
@@ -823,28 +823,31 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
 
   /* ---------- what the desvío gives rise to ---------- */
-  const generaCorto = d => (Array.isArray(d.genera) ? d.genera : []).map(k => {
-    const g = GENERA.find(x => x[0] === k);
-    return g ? (k === 'repro' ? 'RE-PRO-' + (d.repro || 'XX') : g[2]) : null;
+  const generaCorto = d => (Array.isArray(d.genera) ? d.genera : []).map(l => {
+    if (esRepro(l)) return 'RE-PRO-' + (d.repro || 'XX');
+    const c = String(l).replace(/^Comunicación\s+(por\s+)?(registro de\s+)?/i, '');
+    return c.charAt(0).toUpperCase() + c.slice(1);
   }).filter(Boolean);
   function generaCampo(pref, val, alCambiar, ro) {
     const sel = new Set(Array.isArray(val.genera) ? val.genera : []);
+    // Options from the sheet, plus any already marked that were later removed from it.
+    const opciones = OPC_GENERA.concat([...sel].filter(l => !OPC_GENERA.includes(l)));
     const num = h('input', { type: 'text', id: pref + 'Repro', inputmode: 'numeric', maxlength: 6, placeholder: 'N.º', 'aria-label': 'Número de RE-PRO', disabled: ro });
     num.value = val.repro || '';
     const numBox = h('span', { class: 'repro-box' }, 'RE-PRO-', num);
-    numBox.hidden = !sel.has('repro');
-    const emitir = () => alCambiar({ genera: GENERA.map(g => g[0]).filter(k => sel.has(k)), repro: num.value.trim() });
+    numBox.hidden = ![...sel].some(esRepro);
+    const emitir = () => alCambiar({ genera: opciones.filter(l => sel.has(l)), repro: num.value.trim() });
     num.addEventListener('change', emitir);
     return [h('span', { class: 'label' }, 'El desvío genera'),
-      h('div', { class: 'checks' }, GENERA.map(([k, label]) => {
-        const c = h('input', { type: 'checkbox', id: pref + 'G-' + k, disabled: ro });
-        c.checked = sel.has(k);
+      h('div', { class: 'checks' }, opciones.map((label, i) => {
+        const c = h('input', { type: 'checkbox', id: pref + 'G-' + i, disabled: ro });
+        c.checked = sel.has(label);
         c.addEventListener('change', () => {
-          if (c.checked) sel.add(k); else sel.delete(k);
-          if (k === 'repro') { numBox.hidden = !c.checked; if (c.checked) num.focus(); }
+          if (c.checked) sel.add(label); else sel.delete(label);
+          if (esRepro(label)) { numBox.hidden = !c.checked; if (c.checked) num.focus(); }
           emitir();
         });
-        return h('div', { class: 'check-row' }, h('label', { class: 'check', for: pref + 'G-' + k }, c, label), k === 'repro' ? numBox : null);
+        return h('div', { class: 'check-row' }, h('label', { class: 'check', for: pref + 'G-' + i }, c, label), esRepro(label) ? numBox : null);
       }))];
   }
 
@@ -902,7 +905,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
       if (!$('nFecha').value || !$('nHora').value || isNaN(fijo)) return errorNuevo('Completá la fecha y la hora del desvío, o destildá la opción para usar las de la foto.');
     }
     const turnoFijo = $('nTurno').value;
-    const comun = { sector, descripcion: $('nDesc').value.trim(), responsable: $('nResp').value.trim(), turno: turnoFijo, creadoPor: S.quien, genera: S.nGenera.genera, repro: S.nGenera.repro };
+    const comun = { sector, descripcion: $('nDesc').value.trim(), responsable: $('nResp').value.trim(), turno: turnoFijo, creadoPor: S.quien, genera: S.nGenera.genera, repro: S.nGenera.repro, tipo: S.tipo };
     S.guardando = true; $('nGuardar').disabled = true; $('nErr').hidden = true; pintarPreviews();
     const total = S.nuevas.length;
     let hechas = 0;
@@ -947,7 +950,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     }
     const ro = !S.puedeEscribir;
     const id = d.id;
-    $('detTitulo').textContent = NOMBRE[d.sector] || 'Desvío';
+    $('detTitulo').textContent = d.sector || 'Desvío';
 
     const fotos = h('div', { class: 'fotos' });
     if (d.foto) fotos.append(h('figure', null, imgGrande(d.foto, 'Foto del desvío'), h('figcaption', null, 'Desvío · ' + sello(d))));
@@ -1093,7 +1096,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     // Do not redraw under someone who is typing; their next action redraws.
     if (!forzar && ae && caja.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
     if (!S.tDia) S.tDia = hoy();
-    const v = S.tVista;
+    const v = S.pantalla === 'pendientes' ? 'pendientes' : (S.tVista === 'historial' ? 'historial' : 'dia');
     let base = S.tareas;
     if (v === 'pendientes') base = base.filter(t => t.estado !== 'resuelta');
     else if (v === 'dia') base = base.filter(t => t.fecha === S.tDia);
@@ -1110,7 +1113,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
 
     const partes = [
       h('div', { class: 'panel-head' },
-        h('div', { class: 'tabs', role: 'tablist' }, tab('pendientes', 'Pendientes'), tab('dia', 'Parte del día'), tab('historial', 'Historial')),
+        v === 'pendientes' ? h('span') : h('div', { class: 'tabs', role: 'tablist' }, tab('dia', 'Parte del día'), tab('historial', 'Historial')),
         API ? h('button', { type: 'button', class: 'btn primary', id: 'tAgregar', onclick: abrirTarea }, h('span', { 'aria-hidden': 'true' }, '+'), 'Agregar tarea') : null),
     ];
     if (v === 'dia') partes.push(h('div', { class: 'daynav' },
@@ -1237,7 +1240,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
   function abrirTarea() {
     const ya = new Date();
-    $('tFecha').value = S.tVista === 'dia' ? S.tDia : fechaDe(ya);
+    $('tFecha').value = (S.pantalla === 'partes' && S.tVista !== 'historial') ? S.tDia : fechaDe(ya);
     $('tHora').value = pad(ya.getHours()) + ':' + pad(ya.getMinutes());
     $('tEstado').value = 'pendiente';
     $('tErr').hidden = true;
@@ -1290,7 +1293,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     return out.slice(0, 8);
   }
   function abrirQuien(destino) {
-    S.destino = destino === 'tareas' ? 'tareas' : 'preop';
+    S.destino = TITULOS[destino] ? destino : 'preop';
     $('quienTitulo').textContent = TITULOS[S.destino];
     $('qNombre').value = '';
     $('qClave').value = '';
@@ -1321,6 +1324,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     if (!Array.isArray(locales)) locales = [];
     lsSet('calidad.nombres', JSON.stringify([n].concat(locales.filter(x => typeof x === 'string' && x.toLowerCase() !== n.toLowerCase())).slice(0, 8)));
     S.pantalla = S.destino;
+    if (esVerif(S.pantalla) && S.tipo !== S.pantalla) { S.tipo = S.pantalla; S.sector = 'todos'; S.view = 'home'; S.filtro = 'todos'; S.fecha = ''; }
     if (dlgQ.open) dlgQ.close();
     if (!S.items.length && !S.tareas.length) S.conexion = 'cargando';
     pintar();
@@ -1332,18 +1336,20 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     window.scrollTo(0, 0);
   }
   function pintarInicio() {
-    const c = conteos().todos;
     const t = { pendiente: 0, proceso: 0 };
     for (const x of S.tareas) if (x.estado in t) t[x.estado]++;
-    const circulo = (destino, l1, l2, n) => h('button', { type: 'button', class: 'entrada', id: 'entrada-' + destino, onclick: () => abrirQuien(destino) },
-      h('span', { class: 'entrada-txt' }, h('strong', null, l1, h('br'), l2)),
-      h('span', { class: 'entrada-side' },
-        n.pendiente ? h('span', { class: 'pill pendiente' }, n.pendiente + (n.pendiente === 1 ? ' pendiente' : ' pendientes')) : null,
-        n.proceso ? h('span', { class: 'pill proceso' }, n.proceso + ' en proceso') : null,
-        h('span', { class: 'entrada-go' }, 'Entrar ›')));
+    const hoyN = S.tareas.filter(x => x.fecha === hoy()).length;
+    const abiertos = n => [
+      n.pendiente ? h('span', { class: 'pill pendiente' }, n.pendiente + (n.pendiente === 1 ? ' pendiente' : ' pendientes')) : null,
+      n.proceso ? h('span', { class: 'pill proceso' }, n.proceso + ' en proceso') : null];
+    const circulo = (destino, l1, l2, pills) => h('button', { type: 'button', class: 'entrada', id: 'entrada-' + destino, onclick: () => abrirQuien(destino) },
+      h('span', { class: 'entrada-txt' }, h('strong', null, l1, l2 ? h('br') : null, l2)),
+      h('span', { class: 'entrada-side' }, pills, h('span', { class: 'entrada-go' }, 'Entrar ›')));
     $('entradas').replaceChildren(
-      circulo('preop', 'Verificación', 'preoperacional', c),
-      circulo('tareas', 'Tareas pendientes', 'y partes', t));
+      circulo('preop', 'Verificación', 'preoperacional', abiertos(conteos('preop').todos)),
+      circulo('op', 'Verificación', 'operacional', abiertos(conteos('op').todos)),
+      circulo('partes', 'Partes', 'diarios', hoyN ? h('span', { class: 'pill neutro' }, hoyN + ' hoy') : null),
+      circulo('pendientes', 'Pendientes', '', abiertos(t)));
   }
   function pintarSync() {
     $('syncTxt').textContent = S.sincronizando ? 'Actualizando…' : S.actualizado ? 'Actualizado ' + diaHora(S.actualizado) : '';
@@ -1358,10 +1364,10 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     $('inicio').hidden = dentro;
     $('preop').hidden = !dentro;
     $('secTitulo').textContent = TITULOS[S.pantalla] || TITULOS.preop;
-    $('quienRol').textContent = S.pantalla === 'tareas' ? 'Usuario' : 'Verifica';
+    $('quienRol').textContent = esTareas(S.pantalla) ? 'Usuario' : 'Verifica';
     $('quienNombre').textContent = S.quien;
-    $('app').hidden = S.pantalla !== 'preop';
-    $('tareas').hidden = S.pantalla !== 'tareas';
+    $('app').hidden = !esVerif(S.pantalla);
+    $('tareas').hidden = !esTareas(S.pantalla);
     $('app').dataset.view = S.view;
     pintarInicio(); pintarRail(); pintarPanel(); pintarTareas(false); pintarListas(); pintarSync(); pintarDetalle(false);
   }
@@ -1391,7 +1397,8 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
 
   $('syncBtn').addEventListener('click', refrescar);
 
-  const inicial = (location.hash || '').slice(1);
+  let inicial = '';
+  try { inicial = decodeURIComponent((location.hash || '').slice(1)); } catch (e) {}
   if (NOMBRE[inicial]) { S.sector = inicial; S.view = 'panel'; }
   if (S.clave) {
     try {
