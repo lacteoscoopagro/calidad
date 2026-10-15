@@ -1,6 +1,6 @@
 // Calidad COOPAGRO: keeps the app shell available without signal.
 // Network first, so a new version shows up as soon as there is connection.
-const CACHE = 'calidad-v2';
+const CACHE = 'calidad-v3';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'logo.png'];
 
 self.addEventListener('install', e => {
@@ -15,7 +15,8 @@ self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== self.location.origin) return;
   e.respondWith(
-    fetch(e.request).then(r => {
+    // no-cache: always ask the server whether there is a newer version (cheap when nothing changed).
+    fetch(e.request, { cache: 'no-cache' }).then(r => {
       if (r && r.ok) { const copia = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copia)); }
       return r;
     }).catch(() => caches.match(e.request, { ignoreSearch: true }).then(r => r || caches.match('index.html')))

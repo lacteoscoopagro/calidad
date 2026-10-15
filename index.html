@@ -149,6 +149,8 @@ input:disabled,select:disabled,textarea:disabled{color:var(--muted);background:v
 .chip[aria-pressed="true"] b{color:var(--bg)}
 .datef{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
 .datef input{width:auto;min-height:36px;padding:4px 8px}
+.datef select{width:auto;max-width:min(260px,62vw);min-height:36px;padding:4px 8px}
+.datef select.activo{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
 
 .notice{padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--proc);border-radius:4px;background:var(--surface);font-size:14px}
 .empty{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:28px 20px;border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
@@ -249,7 +251,14 @@ select.t-estado.pendiente{background:var(--pend-bg);border-color:var(--pend);col
 select.t-estado.proceso{background:var(--proc-bg);border-color:var(--proc);color:var(--proc)}
 select.t-estado.resuelta{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
 select.t-estado option{background:var(--surface);color:var(--ink)}
+select.t-prio{width:auto;min-height:36px;padding:4px 8px;font-weight:700;font-size:14px}
+select.t-prio.p1{background:var(--pend);border-color:var(--pend);color:var(--surface)}
+select.t-prio.p2{background:var(--proc-bg);border-color:var(--proc);color:var(--proc)}
+select.t-prio.p3{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+select.t-prio option{background:var(--surface);color:var(--ink);font-weight:400}
 .link.danger{color:var(--pend)}
+.usuarios{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.usuarios .btn{justify-content:flex-start;min-height:48px;font-size:16px;text-align:left}
 .checks{display:flex;flex-direction:column}
 .check-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
 .repro-box{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -324,10 +333,10 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
         <span class="hint">Te la pasa quien administra la app. Se pide una sola vez en cada teléfono.</span>
       </div>
       <div class="field">
-        <label for="qNombre">Tu nombre</label>
-        <input type="text" id="qNombre" maxlength="40" autocomplete="off" placeholder="Nombre y apellido">
-        <div class="chips" id="qNombres"></div>
-        <span class="hint">Lo que cargues y los cambios de estado que hagas quedan registrados a tu nombre.</span>
+        <span class="label" id="qNombreLabel">¿Quién sos?</span>
+        <div class="usuarios" id="qNombres" role="group" aria-labelledby="qNombreLabel"></div>
+        <input type="text" id="qNombre" maxlength="40" autocomplete="off" placeholder="Nombre y apellido" aria-labelledby="qNombreLabel" hidden>
+        <span class="hint" id="qHint">Tocá tu nombre para entrar. Lo que cargues y los cambios que hagas quedan registrados a tu nombre.</span>
       </div>
       <p class="err" id="qErr" hidden></p>
     </div>
@@ -428,7 +437,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
         </div>
       </div>
       <div class="field">
-        <label for="tTexto">Tarea o novedad</label>
+        <label for="tTexto" id="tTextoLabel">Tarea o novedad</label>
         <textarea id="tTexto" maxlength="1500" placeholder="Describí la tarea"></textarea>
       </div>
       <div class="row2">
@@ -444,6 +453,14 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
             <option value="resuelta">Resuelta</option>
           </select>
         </div>
+      </div>
+      <div class="field" id="tPrioCampo">
+        <label for="tPrio">Prioridad</label>
+        <select id="tPrio">
+          <option value="1">1 · Alta</option>
+          <option value="2">2 · Media</option>
+          <option value="3">3 · Baja</option>
+        </select>
       </div>
       <p class="err" id="tErr" hidden></p>
     </div>
@@ -466,8 +483,12 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   const ESTADOS = { pendiente: ['Pendiente', 'Pendientes'], proceso: ['En proceso', 'En proceso'], cerrado: ['Cerrado', 'Cerrados'] };
   const TURNOS = { manana: 'Mañana', tarde: 'Tarde', noche: 'Noche' };
   // What a desvío can give rise to; the list lives in the sheet (tab "Qué genera").
-  let OPC_GENERA = ["Comunicación verbal", "Comunicación por RE-PRO", "Comunicación por registro de POES", "LUP caso de mejora", "LUP caso de problema", "Apercibimiento"];
+  // People who can sign in; the list lives in the sheet (tab Usuarios).
+  let USUARIOS = ["Martina Visconti", "Paz Bortayro", "Mayra Avendaño", "Delfina Paganoni", "Celina Iacovelli"];
+  let OPC_GENERA = ["Comunicación verbal", "Comunicación por RE-CAL-38", "Comunicación por registro de POES", "LUP caso de mejora", "LUP caso de problema", "Apercibimiento"];
   const esRepro = l => /RE-?PRO/i.test(l);
+  const RANGO_T = { pendiente: 0, proceso: 1, resuelta: 2 };
+  const PRIO = { '1': 'Prioridad 1 · alta', '2': 'Prioridad 2 · media', '3': 'Prioridad 3 · baja' };
   const TITULOS = { preop: 'Verificación preoperacional', op: 'Verificación operacional', partes: 'Partes diarios', pendientes: 'Pendientes' };
   const esVerif = p => p === 'preop' || p === 'op';
   const esTareas = p => p === 'partes' || p === 'pendientes';
@@ -509,13 +530,13 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
   const S = {
-    sector: 'todos', view: 'home', filtro: 'todos', fecha: '',
+    sector: 'todos', view: 'home', filtro: 'todos', fecha: '', fGenera: '',
     pantalla: 'inicio', conexion: 'cargando', puedeEscribir: true, quien: '',
     items: [], porId: new Map(), cerradosTotal: 0, maxCerrados: 150, actualizado: null, sincronizando: false,
     clave: lsGet('calidad.clave'),
     detalle: null, confirmar: false, nuevas: [], guardando: false, nGenera: { genera: [], repro: '' },
     destino: 'preop', tipo: 'preop', tareas: [], tPorId: new Map(), resueltasTotal: 0, maxResueltas: 300,
-    tVista: 'dia', tEstado: { pendientes: 'todas', dia: 'todas', historial: 'todas' },
+    tVista: 'dia', pVista: 'pendientes', tEstado: {},
     tDia: '', tDesde: '', tHasta: '', tHilos: {}, tBorr: {}, tConfirmar: null, tEditResp: null, tNuevaId: null, tGuardando: false,
   };
   const fullCache = new Map();
@@ -528,7 +549,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
   // Last list seen on this phone, so the app opens with something even without signal.
   function guardarCache() {
-    const txt = JSON.stringify({ desvios: S.items, cerradosTotal: S.cerradosTotal, maxCerrados: S.maxCerrados, sectores: SECTORES.map(x => x[0]), opcionesGenera: OPC_GENERA, tareas: S.tareas, resueltasTotal: S.resueltasTotal, maxResueltas: S.maxResueltas, t: S.actualizado ? S.actualizado.getTime() : 0 });
+    const txt = JSON.stringify({ desvios: S.items, cerradosTotal: S.cerradosTotal, maxCerrados: S.maxCerrados, sectores: SECTORES.map(x => x[0]), opcionesGenera: OPC_GENERA, usuarios: USUARIOS, editanPartes: EDITAN_PARTES, tareas: S.tareas, resueltasTotal: S.resueltasTotal, maxResueltas: S.maxResueltas, t: S.actualizado ? S.actualizado.getTime() : 0 });
     try { localStorage.setItem('calidad.cache', txt); } catch (e) { try { localStorage.removeItem('calidad.cache'); } catch (e2) {} }
   }
   function fijarLista(out) {
@@ -538,7 +559,18 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     indexar();
     fijarTareas(out);
     if (Array.isArray(out.sectores)) fijarSectores(out.sectores);
+    fijarUsuarios(out.usuarios);
+    if (Array.isArray(out.editanPartes)) EDITAN_PARTES = out.editanPartes.map(x => String(x || '').trim()).filter(Boolean);
     if (Array.isArray(out.opcionesGenera)) { const g = out.opcionesGenera.map(x => String(x || '').trim()).filter(Boolean); if (g.length) OPC_GENERA = g; }
+  }
+  // null until the registro says who may edit partes (the registro checks it anyway).
+  let EDITAN_PARTES = null;
+  const puedeEditarAca = () => S.pantalla !== 'partes' || editaPartes();
+  const editaPartes = () => !EDITAN_PARTES || EDITAN_PARTES.some(n => n.toLowerCase() === String(S.quien).toLowerCase());
+  function fijarUsuarios(lista) {
+    if (!Array.isArray(lista)) return;
+    const u = lista.map(x => String(x || '').trim()).filter(Boolean);
+    if (u.length) USUARIOS = u;
   }
   function fijarSectores(lista) {
     const limpia = lista.map(n => String(n || '').trim()).filter(Boolean);
@@ -611,6 +643,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     if (c === 'too_large') return 'La foto es demasiado pesada para guardarla.';
     if (c === 'unsupported_type') return 'Ese archivo no es una foto que se pueda guardar.';
     if (c === 'noexiste') return 'Ese registro ya no existe. Tocá Actualizar.';
+    if (c === 'permiso') return 'Tu usuario no tiene permiso para editar los partes.';
     if (c === 'accion') return 'Falta actualizar el registro en Google para usar esta sección.';
     return 'No se pudo guardar. Probá de nuevo en un momento.';
   }
@@ -762,10 +795,19 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
 
   /* ---------- panel ---------- */
   function pintarPanel() {
-    const enSector = delTipo().filter(d => (S.sector === 'todos' || d.sector === S.sector) && (!S.fecha || d.fecha === S.fecha));
+    // Filter by what the desvío gives rise to: one option, or those with nothing marked yet.
+    const cumpleGenera = d => {
+      const g = Array.isArray(d.genera) ? d.genera : [];
+      if (!S.fGenera) return true;
+      if (S.fGenera === '__sin') return g.length === 0;
+      return g.some(l => l === S.fGenera || (esRepro(l) && esRepro(S.fGenera)));
+    };
+    const enSector = delTipo().filter(d => (S.sector === 'todos' || d.sector === S.sector) && (!S.fecha || d.fecha === S.fecha) && cumpleGenera(d));
     const cuenta = { todos: enSector.length, pendiente: 0, proceso: 0, cerrado: 0 };
     for (const d of enSector) if (d.estado in cuenta) cuenta[d.estado]++;
-    const visibles = S.filtro === 'todos' ? enSector : enSector.filter(d => d.estado === S.filtro);
+    // Open desvíos first (pendientes, then en proceso), closed ones at the bottom; newest first within each.
+    const RANGO = { pendiente: 0, proceso: 1, cerrado: 2 };
+    const visibles = (S.filtro === 'todos' ? enSector : enSector.filter(d => d.estado === S.filtro)).slice().sort((a, b) => RANGO[a.estado] - RANGO[b.estado]);
     const titulo = S.sector === 'todos' ? 'Todos los sectores' : (NOMBRE[S.sector] || S.sector);
 
     const head = h('div', { class: 'panel-head' },
@@ -781,7 +823,21 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
         chip('todos', 'Todos'), chip('pendiente', 'Pendientes'), chip('proceso', 'En proceso'), chip('cerrado', 'Cerrados')),
       h('label', { class: 'datef', for: 'fFecha' }, 'Fecha',
         (() => { const i = h('input', { type: 'date', id: 'fFecha' }); i.value = S.fecha; i.addEventListener('change', () => { S.fecha = i.value; pintarPanel(); }); return i; })(),
-        S.fecha ? h('button', { type: 'button', class: 'link', onclick: () => { S.fecha = ''; pintarPanel(); } }, 'Ver todas') : null));
+        S.fecha ? h('button', { type: 'button', class: 'link', onclick: () => { S.fecha = ''; pintarPanel(); } }, 'Ver todas') : null),
+      h('label', { class: 'datef', for: 'fGenera' }, 'Genera',
+        (() => {
+          // Current options, plus older ones still marked on some desvío (e.g. RE-PRO).
+          const opciones = OPC_GENERA.slice();
+          for (const d of delTipo()) for (const l of (Array.isArray(d.genera) ? d.genera : [])) if (!opciones.includes(l)) opciones.push(l);
+          if (S.fGenera && S.fGenera !== '__sin' && !opciones.includes(S.fGenera)) opciones.push(S.fGenera);
+          const sel = h('select', { id: 'fGenera', class: 'f-genera' + (S.fGenera ? ' activo' : '') },
+            h('option', { value: '' }, 'Todo'),
+            opciones.map(l => h('option', { value: l }, l)),
+            h('option', { value: '__sin' }, 'Sin indicar'));
+          sel.value = S.fGenera;
+          sel.addEventListener('change', () => { S.fGenera = sel.value; pintarPanel(); });
+          return sel;
+        })()));
 
     const partes = [head, tools];
     if (!API) partes.push(h('div', { class: 'notice' }, 'La app todavía no está conectada al registro de desvíos.'));
@@ -792,11 +848,11 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     if (S.conexion === 'cargando' && !S.items.length && API) {
       partes.push(h('div', { class: 'empty' }, h('strong', null, 'Cargando desvíos'), h('p', null, 'Trayendo las fotos relevadas en planta.')));
     } else if (!visibles.length) {
-      const hayFiltro = S.filtro !== 'todos' || S.fecha;
+      const hayFiltro = S.filtro !== 'todos' || S.fecha || S.fGenera;
       partes.push(h('div', { class: 'empty' },
         h('strong', null, hayFiltro ? 'Nada con ese filtro' : 'Sin desvíos cargados'),
         h('p', null, hayFiltro
-          ? 'No hay desvíos en ' + titulo + ' que coincidan con el estado o la fecha elegidos.'
+          ? 'No hay desvíos en ' + titulo + ' que coincidan con los filtros elegidos.'
           : (S.sector === 'todos'
             ? 'Acá van a aparecer las fotos de los desvíos relevados en cada sector, con su estado. Elegí un sector y tocá Cargar desvío para sumar el primero.'
             : 'Acá van a aparecer las fotos de los desvíos relevados en ' + titulo + ', con su estado. Tocá Cargar desvío para sumar el primero.'))));
@@ -1096,25 +1152,33 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     // Do not redraw under someone who is typing; their next action redraws.
     if (!forzar && ae && caja.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
     if (!S.tDia) S.tDia = hoy();
-    const v = S.pantalla === 'pendientes' ? 'pendientes' : (S.tVista === 'historial' ? 'historial' : 'dia');
-    let base = S.tareas;
+    const enPend = S.pantalla === 'pendientes';
+    const v = enPend ? (S.pVista === 'historial' ? 'historial' : 'pendientes') : (S.tVista === 'historial' ? 'historial' : 'dia');
+    const clave = S.pantalla + ':' + v;
+    // Partes diarios and Pendientes are separate lists.
+    let base = S.tareas.filter(t => (t.lista === 'pendiente') === enPend);
     if (v === 'pendientes') base = base.filter(t => t.estado !== 'resuelta');
     else if (v === 'dia') base = base.filter(t => t.fecha === S.tDia);
     else base = base.filter(t => (!S.tDesde || t.fecha >= S.tDesde) && (!S.tHasta || t.fecha <= S.tHasta));
     const cuenta = { todas: base.length, pendiente: 0, proceso: 0, resuelta: 0 };
     for (const t of base) cuenta[t.estado]++;
-    const est = S.tEstado[v];
+    const est = S.tEstado[clave] || 'todas';
     const visibles = (est === 'todas' ? base.slice() : base.filter(t => t.estado === est)).sort(ordenT);
     if (v !== 'dia') visibles.reverse();
+    // Open pendientes: priority 1 first, then 2, then 3; newest first within each.
+    if (v === 'pendientes') visibles.sort((a, b) => (+a.prioridad || 4) - (+b.prioridad || 4));
+    // Everywhere else: pendientes first, then en proceso, resueltas at the bottom.
+    else visibles.sort((a, b) => RANGO_T[a.estado] - RANGO_T[b.estado]);
 
-    const tab = (k, label) => h('button', { type: 'button', class: 'tab', role: 'tab', id: 'tab-' + k, 'aria-selected': v === k ? 'true' : 'false', onclick: () => { S.tVista = k; pintarTareas(true); } }, label);
-    const chip = (k, label) => h('button', { type: 'button', class: 'chip', 'aria-pressed': est === k ? 'true' : 'false', onclick: () => { S.tEstado[v] = k; pintarTareas(true); } }, label, h('b', null, cuenta[k]));
+    const tab = (k, label) => h('button', { type: 'button', class: 'tab', role: 'tab', id: 'tab-' + k, 'aria-selected': v === k ? 'true' : 'false', onclick: () => { if (enPend) S.pVista = k; else S.tVista = k; pintarTareas(true); } }, label);
+    const chip = (k, label) => h('button', { type: 'button', class: 'chip', 'aria-pressed': est === k ? 'true' : 'false', onclick: () => { S.tEstado[clave] = k; pintarTareas(true); } }, label, h('b', null, cuenta[k]));
     const fechaIn = (id, val, set) => { const i = h('input', { type: 'date', id }); i.value = val; i.addEventListener('change', () => { set(i.value); pintarTareas(true); }); return i; };
 
     const partes = [
       h('div', { class: 'panel-head' },
-        v === 'pendientes' ? h('span') : h('div', { class: 'tabs', role: 'tablist' }, tab('dia', 'Parte del día'), tab('historial', 'Historial')),
-        API ? h('button', { type: 'button', class: 'btn primary', id: 'tAgregar', onclick: abrirTarea }, h('span', { 'aria-hidden': 'true' }, '+'), 'Agregar tarea') : null),
+        enPend ? h('div', { class: 'tabs', role: 'tablist' }, tab('pendientes', 'Abiertos'), tab('historial', 'Historial'))
+          : h('div', { class: 'tabs', role: 'tablist' }, tab('dia', 'Parte del día'), tab('historial', 'Historial')),
+        API && puedeEditarAca() ? h('button', { type: 'button', class: 'btn primary', id: 'tAgregar', onclick: abrirTarea }, h('span', { 'aria-hidden': 'true' }, '+'), enPend ? 'Agregar pendiente' : 'Agregar al parte') : null),
     ];
     if (v === 'dia') partes.push(h('div', { class: 'daynav' },
       h('button', { type: 'button', class: 'btn', 'aria-label': 'Día anterior', onclick: () => { S.tDia = correrDia(S.tDia, -1); pintarTareas(true); } }, '◀'),
@@ -1130,25 +1194,27 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
       v === 'pendientes' ? null : chip('resuelta', 'Resueltas')));
 
     if (!API) partes.push(h('div', { class: 'notice' }, 'La app todavía no está conectada al registro.'));
+    if (API && !puedeEditarAca()) partes.push(h('div', { class: 'notice', id: 'tSoloLectura' }, 'Solo lectura: tu usuario puede ver los partes diarios, pero no agregarlos ni cambiarlos.'));
     if (S.conexion === 'error') partes.push(h('div', { class: 'notice' },
       h('span', null, 'No se pudo actualizar la lista: no hay conexión con el registro.' + (S.tareas.length ? ' Se muestra lo último que se vio en este teléfono.' : '')),
       h('button', { type: 'button', class: 'link', onclick: refrescar }, 'Reintentar')));
 
     if (S.conexion === 'cargando' && !S.tareas.length && API) {
-      partes.push(h('div', { class: 'empty' }, h('strong', null, 'Cargando tareas'), h('p', null, 'Trayendo los partes y las tareas cargadas.')));
+      partes.push(h('div', { class: 'empty' }, h('strong', null, enPend ? 'Cargando pendientes' : 'Cargando partes'), h('p', null, 'Trayendo lo cargado en el registro.')));
     } else if (!visibles.length) {
       const vacio = est !== 'todas' || v === 'historial'
         ? ['Nada con ese filtro', 'No hay tareas que coincidan con el estado o las fechas elegidos.']
         : v === 'dia'
-          ? ['Parte sin registros', 'No hay nada cargado para el ' + diaLargo(S.tDia).toLowerCase() + '. Tocá Agregar tarea para anotar la primera novedad del día.']
-          : ['Sin tareas abiertas', 'Acá aparecen las tareas pendientes y en proceso de todos los días. Tocá Agregar tarea para cargar una.'];
+          ? ['Parte sin registros', 'No hay nada cargado para el ' + diaLargo(S.tDia).toLowerCase() + '. Tocá Agregar al parte para anotar la primera novedad del día.']
+          : ['Sin pendientes abiertos', 'Acá aparecen los pendientes y los que están en proceso. Tocá Agregar pendiente para cargar uno.'];
       partes.push(h('div', { class: 'empty' }, h('strong', null, vacio[0]), h('p', null, vacio[1])));
     } else {
       const lista = h('div', { class: 'tlist' });
       let ult = null;
       for (const t of visibles) {
-        if (v !== 'dia' && t.fecha !== ult) { ult = t.fecha; lista.append(h('h3', { class: 'dia-h' }, diaLargo(t.fecha))); }
-        lista.append(tareaEl(t));
+        const grupo = v === 'pendientes' ? (PRIO[t.prioridad] || 'Sin prioridad') : EST_T[t.estado][1];
+        if (grupo && grupo !== ult) { ult = grupo; lista.append(h('h3', { class: 'dia-h' }, grupo)); }
+        lista.append(tareaEl(t, v !== 'dia'));
       }
       partes.push(lista);
       if (v === 'historial' && S.resueltasTotal > S.maxResueltas)
@@ -1157,16 +1223,24 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     caja.replaceChildren(...partes);
   }
 
-  function tareaEl(t) {
+  function tareaEl(t, conFecha) {
     const id = t.id;
-    const sel = h('select', { class: 't-estado ' + t.estado, 'aria-label': 'Estado de la tarea' }, Object.keys(EST_T).map(k => h('option', { value: k }, EST_T[k][0])));
+    const ro = !puedeEditarAca();
+    const prioSel = h('select', { class: 't-prio p' + (t.prioridad || '0'), 'aria-label': 'Prioridad', disabled: ro },
+      t.prioridad ? null : h('option', { value: '' }, 'Sin prioridad'),
+      ['1', '2', '3'].map(n => h('option', { value: n }, 'Prioridad ' + n)));
+    prioSel.value = t.prioridad || '';
+    prioSel.addEventListener('change', () => { const n = prioSel.value; prioSel.blur(); if (n) tareaCambiar(id, { prioridad: n }, 'Prioridad ' + n); });
+    const sel = h('select', { class: 't-estado ' + t.estado, 'aria-label': 'Estado de la tarea', disabled: ro }, Object.keys(EST_T).map(k => h('option', { value: k }, EST_T[k][0])));
     sel.value = t.estado;
     sel.addEventListener('change', () => { const e = sel.value; sel.blur(); tareaCambiar(id, { estado: e }, 'Estado: ' + EST_T[e][0]); });
     const segs = t.respuestas || [];
     const abierto = !!S.tHilos[id];
 
     let resp;
-    if (S.tEditResp === id) {
+    if (ro) {
+      resp = h('span', { class: 'card-resp' }, 'Responsable: ' + (t.responsable || 'sin asignar'));
+    } else if (S.tEditResp === id) {
       const i = h('input', { type: 'text', id: 'tRespIn', list: 'respList', maxlength: 60, placeholder: 'Persona o área', 'aria-label': 'Responsable' });
       i.value = t.responsable || '';
       const ok = () => { const val = i.value.trim(); S.tEditResp = null; if (val === (t.responsable || '')) pintarTareas(true); else tareaCambiar(id, { responsable: val }, 'Responsable guardado'); };
@@ -1177,7 +1251,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     } else {
       resp = h('button', { type: 'button', class: 'link', onclick: () => { S.tEditResp = id; pintarTareas(true); const i = $('tRespIn'); if (i) i.focus(); } }, 'Responsable: ' + (t.responsable || 'sin asignar'));
     }
-    const borrar = S.tConfirmar === id
+    const borrar = ro ? null : S.tConfirmar === id
       ? h('span', { class: 'confirm' }, 'Se borra la tarea con su seguimiento.',
           h('button', { type: 'button', class: 'btn danger', onclick: () => tareaEliminar(id) }, 'Sí, borrar'),
           h('button', { type: 'button', class: 'btn', onclick: () => { S.tConfirmar = null; pintarTareas(true); } }, 'Cancelar'))
@@ -1185,10 +1259,10 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
 
     const el = h('article', { class: 'tarea' },
       h('div', { class: 't-meta' },
-        h('b', { class: 't-hora' }, t.hora || '--:--'),
+        h('b', { class: 't-hora' }, (conFecha ? diaMes(t.fecha) + ' ' : '') + (t.hora || '--:--')),
         t.autor ? h('span', null, 'Cargó ' + t.autor) : null),
       h('p', { class: 't-texto' }, t.texto),
-      h('div', { class: 't-acc' }, sel, resp,
+      h('div', { class: 't-acc' }, t.lista === 'pendiente' ? prioSel : null, sel, resp,
         h('button', { type: 'button', class: 'link', 'aria-expanded': abierto ? 'true' : 'false', onclick: () => { S.tHilos[id] = !abierto; pintarTareas(true); } }, 'Seguimiento (' + segs.length + ') ' + (abierto ? '▲' : '▼')),
         borrar));
     if (abierto) {
@@ -1200,7 +1274,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
         segs.length ? segs.map(r => h('div', { class: 'hilo-it' + (String(r.texto).startsWith('→') ? ' evento' : '') },
           h('small', null, [diaHora(r.t), r.autor].filter(Boolean).join(' · ')),
           h('span', null, r.texto))) : h('span', { class: 'hint' }, 'Todavía no hay respuestas.'),
-        h('div', { class: 'hilo-form' }, tx, h('button', { type: 'button', class: 'btn primary', onclick: () => tareaResponder(id) }, 'Enviar'))));
+        ro ? null : h('div', { class: 'hilo-form' }, tx, h('button', { type: 'button', class: 'btn primary', onclick: () => tareaResponder(id) }, 'Enviar'))));
     }
     return el;
   }
@@ -1232,17 +1306,23 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
   async function tareaEliminar(id) {
     try {
-      await enCola('t:' + id, () => api('tareaEliminar', { id }));
+      await enCola('t:' + id, () => api('tareaEliminar', { id, por: S.quien }));
       quitarTarea(id); S.tConfirmar = null;
       pintarTareas(true); pintarInicio();
-      toast('Tarea borrada');
+      toast(S.pantalla === 'pendientes' ? 'Pendiente borrado' : 'Registro borrado');
     } catch (e) { if (e.code !== 'clave') toast(msgError(e)); }
   }
   function abrirTarea() {
     const ya = new Date();
     $('tFecha').value = (S.pantalla === 'partes' && S.tVista !== 'historial') ? S.tDia : fechaDe(ya);
+    const pend = S.pantalla === 'pendientes';
+    $('tareaTitulo').textContent = pend ? 'Agregar pendiente' : 'Agregar al parte diario';
+    $('tTextoLabel').textContent = pend ? 'Pendiente' : 'Tarea o novedad';
+    $('tGuardar').textContent = pend ? 'Agregar pendiente' : 'Agregar al parte';
     $('tHora').value = pad(ya.getHours()) + ':' + pad(ya.getMinutes());
     $('tEstado').value = 'pendiente';
+    $('tPrio').value = '2';
+    $('tPrioCampo').hidden = S.pantalla !== 'pendientes';
     $('tErr').hidden = true;
     $('tStatus').textContent = 'Cargado por ' + S.quien;
     dlgT.showModal();
@@ -1259,12 +1339,12 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     if (!S.tNuevaId) S.tNuevaId = nuevoId();
     S.tGuardando = true; $('tGuardar').disabled = true; $('tErr').hidden = true; $('tStatus').textContent = 'Guardando…';
     try {
-      const out = await api('tareaCrear', { tarea: { id: S.tNuevaId, fecha: $('tFecha').value, hora: $('tHora').value, estado: $('tEstado').value, texto, responsable: $('tResp').value.trim(), autor: S.quien } });
+      const out = await api('tareaCrear', { tarea: { id: S.tNuevaId, fecha: $('tFecha').value, hora: $('tHora').value, estado: $('tEstado').value, prioridad: S.pantalla === 'pendientes' ? $('tPrio').value : '', texto, responsable: $('tResp').value.trim(), autor: S.quien, lista: S.pantalla === 'pendientes' ? 'pendiente' : 'parte' } });
       ponerTarea(out.tarea);
       S.tNuevaId = null;
       $('tTexto').value = ''; $('tResp').value = '';
       dlgT.close();
-      toast('Tarea agregada');
+      toast(S.pantalla === 'pendientes' ? 'Pendiente agregado' : 'Agregado al parte');
     } catch (e) {
       if (e.code !== 'clave') err(msgError(e));
     } finally {
@@ -1299,22 +1379,26 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     $('qClave').value = '';
     $('qClaveCampo').hidden = !!S.clave;
     $('qErr').hidden = true;
-    $('qNombres').replaceChildren(...nombresConocidos().map(n => h('button', { type: 'button', class: 'chip', onclick: () => entrarComo(n) }, n)));
+    const lista = USUARIOS.length > 0;
+    $('qNombres').replaceChildren(...USUARIOS.map(n => h('button', { type: 'button', class: 'btn usuario', onclick: () => entrarComo(n) }, n)));
+    $('qNombre').hidden = lista;
+    $('qEntrar').closest('.dlg-foot').hidden = lista;
+    $('qHint').textContent = lista ? 'Tocá tu nombre para entrar. Lo que cargues y los cambios que hagas quedan registrados a tu nombre.' : 'Lo que cargues y los cambios que hagas quedan registrados a tu nombre.';
     dlgQ.showModal();
-    (S.clave ? $('qNombre') : $('qClave')).focus();
+    if (!S.clave) $('qClave').focus(); else if (!lista) $('qNombre').focus();
   }
   let entrando = false;
   async function entrarComo(nombre) {
     if (entrando) return;
     const err = t => { const e = $('qErr'); e.textContent = t; e.hidden = false; };
     const n = String(nombre || '').trim().replace(/\s+/g, ' ');
-    if (n.length < 2) { err('Escribí tu nombre para entrar.'); $('qNombre').focus(); return; }
+    if (n.length < 2) { err(USUARIOS.length ? 'Tocá tu nombre para entrar.' : 'Escribí tu nombre para entrar.'); if (!USUARIOS.length) $('qNombre').focus(); return; }
     if (!S.clave) {
       const c = $('qClave').value.trim();
       if (!c) { err('Escribí la clave de acceso.'); $('qClave').focus(); return; }
       entrando = true; $('qEntrar').disabled = true; $('qEntrar').textContent = 'Comprobando…'; $('qErr').hidden = true;
       S.clave = c;
-      try { await api('entrar', null, { sinAviso: true }); lsSet('calidad.clave', c); }
+      try { const r = await api('entrar', null, { sinAviso: true }); lsSet('calidad.clave', c); fijarUsuarios(r.usuarios); }
       catch (e) { S.clave = ''; err(e.code === 'clave' ? 'La clave no es correcta.' : msgError(e)); return; }
       finally { entrando = false; $('qEntrar').disabled = false; $('qEntrar').textContent = 'Entrar'; }
     }
@@ -1324,7 +1408,7 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
     if (!Array.isArray(locales)) locales = [];
     lsSet('calidad.nombres', JSON.stringify([n].concat(locales.filter(x => typeof x === 'string' && x.toLowerCase() !== n.toLowerCase())).slice(0, 8)));
     S.pantalla = S.destino;
-    if (esVerif(S.pantalla) && S.tipo !== S.pantalla) { S.tipo = S.pantalla; S.sector = 'todos'; S.view = 'home'; S.filtro = 'todos'; S.fecha = ''; }
+    if (esVerif(S.pantalla) && S.tipo !== S.pantalla) { S.tipo = S.pantalla; S.sector = 'todos'; S.view = 'home'; S.filtro = 'todos'; S.fecha = ''; S.fGenera = ''; }
     if (dlgQ.open) dlgQ.close();
     if (!S.items.length && !S.tareas.length) S.conexion = 'cargando';
     pintar();
@@ -1337,8 +1421,8 @@ select.t-estado option{background:var(--surface);color:var(--ink)}
   }
   function pintarInicio() {
     const t = { pendiente: 0, proceso: 0 };
-    for (const x of S.tareas) if (x.estado in t) t[x.estado]++;
-    const hoyN = S.tareas.filter(x => x.fecha === hoy()).length;
+    for (const x of S.tareas) if (x.lista === 'pendiente' && x.estado in t) t[x.estado]++;
+    const hoyN = S.tareas.filter(x => x.lista !== 'pendiente' && x.fecha === hoy()).length;
     const abiertos = n => [
       n.pendiente ? h('span', { class: 'pill pendiente' }, n.pendiente + (n.pendiente === 1 ? ' pendiente' : ' pendientes')) : null,
       n.proceso ? h('span', { class: 'pill proceso' }, n.proceso + ' en proceso') : null];
