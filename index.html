@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0B5C86">
+<meta name="theme-color" content="#1E3A8A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Calidad">
@@ -13,32 +13,37 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Nunito:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: the plant walk as a rail of sectors on the left, an evidence wall of
    stamped photos on the right. On a phone the rail is the home screen and a
    sector opens over it. */
 :root{
-  --bg:#ECEFF2; --surface:#FAFBFC; --sunken:#DFE4E8; --ink:#14222B; --muted:#566772; --line:#CBD3D9;
-  --accent:#0B5C86; --accent-ink:#FFFFFF; --accent-soft:#D9E8F1;
-  --pend:#AE2E1C; --pend-bg:#FBE2DC; --proc:#7C5200; --proc-bg:#FAEAC4; --ok:#1B6540; --ok-bg:#DAEFE2;
-  --stamp-bg:rgba(12,22,28,.78); --stamp-fg:#F2F6F8; --scrim:rgba(12,22,28,.55); --logo-bg:#FFFFFF;
-  --f-display:"Nunito","Varela Round","Arial Rounded MT Bold","Segoe UI",system-ui,sans-serif;
-  --f-body:"Barlow","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --bg:#F8FAFC; --surface:#FFFFFF; --sunken:#F1F5F9; --ink:#0F172A; --muted:#64748B; --line:#E2E8F0;
+  --accent:#1E3A8A; --accent-ink:#FFFFFF; --accent-soft:#E8EEF9;
+  --pend:#991B1B; --pend-bg:#FEE2E2; --proc:#92400E; --proc-bg:#FEF3C7; --ok:#166534; --ok-bg:#DCFCE7;
+  --navy:var(--accent); --navy-soft:var(--accent-soft); --card-line:var(--line); --slate:var(--ink); --slate-2:var(--muted);
+  --rojo-bg:var(--pend-bg); --rojo:var(--pend); --ambar-bg:var(--proc-bg); --ambar:var(--proc);
+  --sombra:0 1px 2px rgba(15,23,42,.05),0 4px 12px rgba(15,23,42,.05); --marca-op:.34;
+  --stamp-bg:rgba(15,23,42,.78); --stamp-fg:#F8FAFC; --scrim:rgba(15,23,42,.55); --logo-bg:#FFFFFF;
+  --f-ui:"Inter","SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+  --f-display:var(--f-ui); --f-body:var(--f-ui);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#2B3A45;
-    --accent:#62B6E2; --accent-ink:#06202E; --accent-soft:#173546;
-    --pend:#FF9480; --pend-bg:#48211A; --proc:#F1C165; --proc-bg:#3E2F10; --ok:#80D4A4; --ok-bg:#163627;
+    --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#263442;
+    --accent:#9DB7FF; --accent-ink:#0B1530; --accent-soft:#1B2A4C;
+    --pend:#FCA5A5; --pend-bg:#4A1F1F; --proc:#FCD34D; --proc-bg:#433310; --ok:#86EFAC; --ok-bg:#14331F;
+    --sombra:0 1px 2px rgba(0,0,0,.3); --marca-op:.4;
     --stamp-bg:rgba(5,10,13,.8); --stamp-fg:#EDF2F5; --scrim:rgba(0,0,0,.65);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#2B3A45;
-  --accent:#62B6E2; --accent-ink:#06202E; --accent-soft:#173546;
-  --pend:#FF9480; --pend-bg:#48211A; --proc:#F1C165; --proc-bg:#3E2F10; --ok:#80D4A4; --ok-bg:#163627;
+  --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#263442;
+  --accent:#9DB7FF; --accent-ink:#0B1530; --accent-soft:#1B2A4C;
+  --pend:#FCA5A5; --pend-bg:#4A1F1F; --proc:#FCD34D; --proc-bg:#433310; --ok:#86EFAC; --ok-bg:#14331F;
+  --sombra:0 1px 2px rgba(0,0,0,.3); --marca-op:.4;
   --stamp-bg:rgba(5,10,13,.8); --stamp-fg:#EDF2F5; --scrim:rgba(0,0,0,.65);
   color-scheme:dark;
 }
@@ -64,27 +69,44 @@ h1{font:800 27px/1.08 var(--f-display);letter-spacing:.01em;text-transform:upper
 .wrap > section{display:flex;flex-direction:column;gap:20px}
 .crumb{align-self:flex-start;background:none;border:0;padding:4px 0;cursor:pointer;font:600 12px/1.3 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .crumb:hover{text-decoration:underline;text-underline-offset:3px}
-.entradas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:520px;margin-inline:auto;width:100%}
-@media (min-width:900px){.entradas{grid-template-columns:repeat(4,minmax(0,1fr));max-width:1000px;gap:24px}}
-.entrada{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.6vw,10px);width:100%;aspect-ratio:1;max-width:100%;padding:9%;text-align:center;background:var(--surface);border:3px solid var(--accent);border-radius:50%;cursor:pointer}
 .logo{display:block;height:clamp(52px,16vw,76px);width:auto;border-radius:6px;border:1px solid var(--line);background:var(--logo-bg)}
-#inicio .top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
-#inicio .top-id{grid-column:2;align-items:center;text-align:center}
-#inicio .logo{grid-column:3;justify-self:end}
+/* dashboard: 2x2 grid of module cards */
+#inicio{font-family:var(--f-ui)}
+#inicio .eyebrow{font:600 11.5px/1.3 var(--f-ui);letter-spacing:.16em;color:var(--navy)}
+#inicio h1{font:700 32px/1.1 "Cinzel","Trajan Pro",Georgia,"Times New Roman",serif;letter-spacing:.1em;color:var(--slate)}
+#inicio .today{font:500 14px/1.4 var(--f-ui);color:var(--slate-2)}
+.entradas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:560px;margin-inline:auto}
+@media (min-width:900px){.entradas{grid-template-columns:repeat(4,minmax(0,1fr));max-width:1040px;gap:16px}}
+.entrada{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0;min-height:168px;padding:16px;text-align:left;font-family:var(--f-ui);color:var(--slate);background:var(--surface);border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--sombra);cursor:pointer}
+@media (prefers-reduced-motion: no-preference){.entrada{transition:border-color .15s,box-shadow .15s,transform .15s}}
+.entrada:hover{border-color:var(--navy);box-shadow:0 6px 20px rgba(30,58,138,.12)}
+.entrada:active{transform:scale(.985)}
+.entrada:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.entrada-ico{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--navy-soft);color:var(--navy);flex:none}
+.entrada-ico svg{width:22px;height:22px}
+.entrada-flecha{position:absolute;top:18px;right:14px;color:var(--slate-2);width:18px;height:18px}
+.entrada-txt{font:600 16px/1.25 var(--f-ui);color:var(--slate);text-wrap:balance}
+.entrada-side{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.entrada .pill{font:700 10.5px/1 var(--f-ui);letter-spacing:.05em;text-transform:uppercase;padding:5px 8px;border-radius:999px}
+.entrada .pill b{font-weight:800}
+.entrada .pill.pendiente{background:var(--rojo-bg);color:var(--rojo)}
+.entrada .pill.proceso{background:var(--ambar-bg);color:var(--ambar)}
+.entrada .pill.neutro{background:var(--navy-soft);color:var(--navy)}
+.entrada-estado{font:500 13px/1.3 var(--f-ui);color:var(--slate-2)}
+#inicio .top{position:relative;isolation:isolate;justify-content:center;align-items:center;border-bottom:1px solid var(--card-line);padding-block:0 18px}
+/* the COOPAGRO emblem, soft like a watermark, with the title underneath */
+#inicio .top::before{content:"";position:absolute;top:0;left:0;right:0;height:112px;z-index:-1;background:url(logo-marca.png) center/contain no-repeat;opacity:var(--marca-op)}
+#inicio .top-id{padding-top:120px}
+#inicio .eyebrow{display:none}
+#inicio .top{display:flex}
+#inicio .top-id{align-items:center;text-align:center}
 #preop .top{flex-direction:column;align-items:center;gap:8px}
 #preop .top-id{align-items:center;text-align:center;align-self:stretch}
 #preop .top-side{align-items:center}
 #preop .who,#preop .sync{justify-content:center}
 #panel .panel-head{flex-direction:column;align-items:stretch}
 #panel .panel-head > .btn.primary{align-self:center}
-.entrada:hover{background:var(--accent-soft)}
-.entrada-txt{display:flex;flex-direction:column;align-items:center;min-width:0}
-.entrada-txt strong{font:800 clamp(11.5px,3.25vw,17px)/1.15 var(--f-display);letter-spacing:.01em;text-transform:uppercase}
-.entrada .pill{font-size:clamp(9.5px,2.6vw,12px);padding:2px 7px}
 .pill.neutro{background:var(--accent-soft);color:var(--accent)}
-.entrada-txt span{color:var(--muted);font-size:15px}
-.entrada-side{display:flex;flex-direction:column;align-items:center;gap:clamp(3px,1vw,6px)}
-.entrada-go{font-weight:600;color:var(--accent);white-space:nowrap}
 
 /* controls */
 input[type=text],input[type=date],input[type=time],select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px 10px;min-height:40px;width:100%;max-width:100%}
@@ -228,7 +250,6 @@ dialog::backdrop{background:var(--scrim)}
 @media (prefers-reduced-motion: no-preference){.btn,.chip,.sec,.card{transition:border-color .12s,background-color .12s}}
 
 /* tareas pendientes y partes */
-@media (max-width:560px){.entrada-go{display:none}}
 .tareas{display:flex;flex-direction:column;gap:16px;max-width:860px}
 .tabs{display:flex;flex-wrap:wrap;border-bottom:2px solid var(--line)}
 .tab{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer;font:700 15.5px/1.1 var(--f-display);color:var(--muted)}
@@ -275,6 +296,43 @@ select.t-prio option{background:var(--surface);color:var(--ink);font-weight:400}
 .hilo-form{display:flex;gap:8px}
 .hilo-form input{flex:1;min-width:0}
 .hilo-form .btn{min-height:40px}
+
+/* ---- inner screens: same visual language as the home ---- */
+.top{border-bottom:1px solid var(--line)}
+h1{font:700 24px/1.2 var(--f-ui);letter-spacing:0;text-transform:none}
+.crumb{font:600 12px/1.3 var(--f-ui);letter-spacing:.12em}
+.who b{font-weight:700}
+.panel-title h2{font:700 20px/1.25 var(--f-ui);letter-spacing:0;text-transform:none}
+.sec-list,.totals{border-radius:16px;box-shadow:var(--sombra)}
+.sec-list{overflow:hidden}
+.sec-name{font:600 15px/1.25 var(--f-ui);letter-spacing:0;text-transform:none}
+.sec[aria-current="true"]{box-shadow:inset 3px 0 0 var(--accent)}
+.n{border-radius:999px;font-family:var(--f-ui)}
+.total b{font:800 24px/1 var(--f-ui)}
+.btn{border-radius:10px}
+input[type=text],input[type=date],input[type=time],select,textarea{border-radius:10px}
+.chip{font-weight:600}
+.card{border-radius:16px;box-shadow:var(--sombra)}
+.card:hover{border-color:var(--accent)}
+.card-sec{font:700 11px/1.2 var(--f-ui);letter-spacing:.06em}
+.pill{border-radius:999px;font-family:var(--f-ui)}
+.stamp{font-family:var(--f-ui)}
+.empty{border-radius:16px}
+.empty strong{font:700 16px/1.3 var(--f-ui);letter-spacing:0;text-transform:none}
+.notice{border-radius:12px}
+dialog{border-radius:20px}
+.dlg-head h3{font:700 18px/1.25 var(--f-ui);letter-spacing:0;text-transform:none}
+.x{border-radius:10px}
+.field > label,.label{font:600 11.5px/1.3 var(--f-ui);letter-spacing:.08em}
+.seg button{border-radius:10px;font-family:var(--f-ui)}
+.fotos img,.prev{border-radius:12px}
+.tarea{border-radius:16px;box-shadow:var(--sombra)}
+.t-hora{font:800 16px/1 var(--f-ui)}
+.tab{font:600 15px/1.1 var(--f-ui)}
+.dia-h{font:700 12px/1.3 var(--f-ui);letter-spacing:.1em}
+.hilo{border-radius:12px}
+select.t-estado,select.t-prio{border-radius:999px}
+.usuarios .btn{border-radius:12px}
 </style>
 </head>
 <body>
@@ -286,7 +344,6 @@ select.t-prio option{background:var(--surface);color:var(--ink);font-weight:400}
         <h1>Calidad</h1>
         <span class="today" id="today"></span>
       </div>
-      <img class="logo" src="logo.png" alt="COOPAGRO Tandil" width="304" height="206">
     </header>
     <div class="entradas" id="entradas"></div>
     <div class="instalar" id="instalar" hidden>
@@ -299,7 +356,7 @@ select.t-prio option{background:var(--surface);color:var(--ink);font-weight:400}
     <header class="top">
       <div class="top-id">
         <button type="button" class="crumb" id="volverInicio">‹ Calidad COOPAGRO</button>
-        <h1 id="secTitulo">Verificación preoperacional</h1>
+        <h1 id="secTitulo">Verificación Preoperacional</h1>
         <span class="today" id="today2"></span>
       </div>
       <div class="top-side">
@@ -489,7 +546,7 @@ select.t-prio option{background:var(--surface);color:var(--ink);font-weight:400}
   const esRepro = l => /RE-?PRO/i.test(l);
   const RANGO_T = { pendiente: 0, proceso: 1, resuelta: 2 };
   const PRIO = { '1': 'Prioridad 1 · alta', '2': 'Prioridad 2 · media', '3': 'Prioridad 3 · baja' };
-  const TITULOS = { preop: 'Verificación preoperacional', op: 'Verificación operacional', partes: 'Partes diarios', pendientes: 'Pendientes' };
+  const TITULOS = { preop: 'Verificación Preoperacional', op: 'Verificación Operacional', partes: 'Partes Diarios', pendientes: 'Pendientes' };
   const esVerif = p => p === 'preop' || p === 'op';
   const esTareas = p => p === 'partes' || p === 'pendientes';
   const EST_T = { pendiente: ['Pendiente', 'Pendientes'], proceso: ['En proceso', 'En proceso'], resuelta: ['Resuelta', 'Resueltas'] };
@@ -1419,21 +1476,43 @@ select.t-prio option{background:var(--surface);color:var(--ink);font-weight:400}
     pintar();
     window.scrollTo(0, 0);
   }
+  // Line icons for the dashboard cards (24x24, drawn with the text color).
+  const ICONOS = {
+    checklist: '<rect x="8" y="2.5" width="8" height="4" rx="1.2"/><path d="M16 4.5h2a2 2 0 0 1 2 2V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    engranaje: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+    parte: '<path d="M14 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8z"/><path d="M14 2.5V8h5.5"/><path d="M8.5 13h7M8.5 17h5"/>',
+    alerta: '<circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5"/><path d="M12 16.2h.01"/>',
+    flecha: '<path d="m9 6 6 6-6 6"/>',
+  };
+  function svg(nombre, clase) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    el.setAttribute('viewBox', '0 0 24 24'); el.setAttribute('fill', 'none'); el.setAttribute('stroke', 'currentColor');
+    el.setAttribute('stroke-width', '1.8'); el.setAttribute('stroke-linecap', 'round'); el.setAttribute('stroke-linejoin', 'round');
+    el.setAttribute('aria-hidden', 'true');
+    if (clase) el.setAttribute('class', clase);
+    el.innerHTML = ICONOS[nombre];
+    return el;
+  }
   function pintarInicio() {
     const t = { pendiente: 0, proceso: 0 };
     for (const x of S.tareas) if (x.lista === 'pendiente' && x.estado in t) t[x.estado]++;
     const hoyN = S.tareas.filter(x => x.lista !== 'pendiente' && x.fecha === hoy()).length;
-    const abiertos = n => [
-      n.pendiente ? h('span', { class: 'pill pendiente' }, n.pendiente + (n.pendiente === 1 ? ' pendiente' : ' pendientes')) : null,
-      n.proceso ? h('span', { class: 'pill proceso' }, n.proceso + ' en proceso') : null];
-    const circulo = (destino, l1, l2, pills) => h('button', { type: 'button', class: 'entrada', id: 'entrada-' + destino, onclick: () => abrirQuien(destino) },
-      h('span', { class: 'entrada-txt' }, h('strong', null, l1, l2 ? h('br') : null, l2)),
-      h('span', { class: 'entrada-side' }, pills, h('span', { class: 'entrada-go' }, 'Entrar ›')));
+    const abiertos = n => {
+      const p = [
+        n.pendiente ? h('span', { class: 'pill pendiente' }, h('b', null, n.pendiente), n.pendiente === 1 ? ' pendiente' : ' pendientes') : null,
+        n.proceso ? h('span', { class: 'pill proceso' }, h('b', null, n.proceso), ' en proceso') : null].filter(Boolean);
+      return p.length ? p : h('span', { class: 'entrada-estado' }, 'Todo al día');
+    };
+    const tarjeta = (destino, titulo, icono, estado) => h('button', { type: 'button', class: 'entrada', id: 'entrada-' + destino, onclick: () => abrirQuien(destino) },
+      h('span', { class: 'entrada-ico', 'aria-hidden': 'true' }, svg(icono)),
+      svg('flecha', 'entrada-flecha'),
+      h('span', { class: 'entrada-txt' }, titulo),
+      h('span', { class: 'entrada-side' }, estado));
     $('entradas').replaceChildren(
-      circulo('preop', 'Verificación', 'preoperacional', abiertos(conteos('preop').todos)),
-      circulo('op', 'Verificación', 'operacional', abiertos(conteos('op').todos)),
-      circulo('partes', 'Partes', 'diarios', hoyN ? h('span', { class: 'pill neutro' }, hoyN + ' hoy') : null),
-      circulo('pendientes', 'Pendientes', '', abiertos(t)));
+      tarjeta('preop', 'Verificación Preoperacional', 'checklist', abiertos(conteos('preop').todos)),
+      tarjeta('op', 'Verificación Operacional', 'engranaje', abiertos(conteos('op').todos)),
+      tarjeta('partes', 'Partes Diarios', 'parte', hoyN ? h('span', { class: 'pill neutro' }, h('b', null, hoyN), hoyN === 1 ? ' registro hoy' : ' registros hoy') : h('span', { class: 'entrada-estado' }, 'Sin registros hoy')),
+      tarjeta('pendientes', 'Pendientes', 'alerta', abiertos(t)));
   }
   function pintarSync() {
     $('syncTxt').textContent = S.sincronizando ? 'Actualizando…' : S.actualizado ? 'Actualizado ' + diaHora(S.actualizado) : '';
