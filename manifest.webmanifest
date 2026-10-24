@@ -1,17 +1,32 @@
 {
-  "name": "Stock insumos COOPAGRO",
-  "short_name": "Stock insumos",
-  "description": "Ingresos y egresos de insumos del depósito (RE-PRO-51).",
+  "name": "Calidad COOPAGRO",
+  "short_name": "Calidad",
+  "description": "Verificación preoperacional: desvíos por sector con fotos y estado.",
   "lang": "es-AR",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ECEFF2",
-  "theme_color": "#0B5C86",
+  "background_color": "#F8FAFC",
+  "theme_color": "#1E3A8A",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

@@ -1,0 +1,383 @@
+/**
+ * Stock insumos — RE-PRO-51 Control de stock
+ * Registro de ingresos y egresos de insumos y químicos del depósito.
+ * Insumos: hojas Insumos, Movimientos y Stock. Químicos: hojas Químicos, Movimientos químicos y Stock químicos.
+ *
+ * Primera vez: elegí la función "configurar" en la barra de arriba y tocá Ejecutar.
+ */
+
+// Clave que se pide la primera vez en cada celular. Cambiala por la que quieras y volvé a implementar.
+const CLAVE_ACCESO = 'insumos2026';
+
+const HOJA_INSUMOS = 'Insumos';
+const HOJA_MOVS = 'Movimientos';
+const HOJA_STOCK = 'Stock';
+const HOJA_RESP = 'Responsables';
+const HOJA_PROV = 'Proveedores';
+const HOJA_UNID = 'Unidades';
+const HOJA_CAT = 'Categorías';
+
+const COLS_INSUMOS = ['ID', 'Descripción', 'Categoría', 'Proveedor', 'Unidad', 'Stock mínimo', 'Activo', 'Orden'];
+const COLS_MOVS = ['ID', 'Registrado', 'Fecha', 'Hora', 'Tipo', 'ID insumo', 'Insumo', 'Cantidad', 'Unidad',
+                   'Proveedor', 'Lote', 'Vencimiento', 'Destino / uso', 'Responsable', 'Observaciones'];
+
+const LISTADO_DI = [
+  ['Cloruro de calcio (32%)', 'Aditivos y químicos', 'Alpha Quimica', 'bidones'],
+  ['DelvoCid 07015', 'Aditivos y químicos', 'DSM', 'unidades'],
+  ['Sal Entrefina seca lavada y purificada x 25 kg', 'Aditivos y químicos', '', 'bolsas'],
+  ['Colorante Amarillo', 'Aditivos y químicos', 'Oterra', 'litros'],
+  ['Bolsa mozzarella cristal con tape 200x520mm', 'Bolsas', 'Amcor', 'unidades'],
+  ['Bolsa mozzarella cristal con tape 200x550mm', 'Bolsas', 'Cryovac', 'unidades'],
+  ['Bolsa mozzarella CASANTO con tape 200x520mm', 'Bolsas', 'Amcor', 'unidades'],
+  ['Bolsa mozzarella EXPO BRASIL con tape 200x520mm', 'Bolsas', 'Amcor', 'unidades'],
+  ['Bolsa Tybo roja con tape 200x520mm', 'Bolsas', 'Amcor', 'unidades'],
+  ['Bolsa Tybo roja con tape 200x550mm', 'Bolsas', 'Cryovac', 'unidades'],
+  ['Caja p/ barra 390x197x190 mm COOPAGRO', 'Cajas y cartón', 'Cartocor', 'unidades'],
+  ['Caja p/ barra 390x197x190 mm MHSA sin impresión', 'Cajas y cartón', 'Cartocor', 'unidades'],
+  ['Caja p/ barra 390x197x190 mm MHSA con impresión', 'Cajas y cartón', 'Cartocor', 'unidades'],
+  ['Planchas cartón COOPAGRO', 'Cajas y cartón', 'Cartocor', 'unidades'],
+  ['Planchas cartón MHSA', 'Cajas y cartón', '', 'unidades'],
+  ['Pallet COOPAGRO mercado interno', 'Pallets', 'Pino Azul', 'unidades'],
+  ['Pallet COOPAGRO exportación', 'Pallets', 'Pino Azul', 'unidades'],
+  ['Pallet MHSA mercado interno', 'Pallets', '', 'unidades'],
+  ['Pallet MHSA exportación', 'Pallets', '', 'unidades'],
+  ['Termoetiqueta 58x75', 'Etiquetas', 'Bizerba', 'rollos'],
+  ['Termoetiqueta 68x45', 'Etiquetas', 'Bizerba', 'rollos'],
+  ['Termoetiqueta 90x110', 'Etiquetas', 'Bizerba', 'rollos'],
+  ['Etiqueta comercial Mozzarella PIANO', 'Etiquetas', 'Logimet/Gráfica Independencia', 'unidades'],
+  ['Etiqueta comercial Tybo PIANO', 'Etiquetas', 'Logimet/Gráfica Independencia', 'unidades'],
+  ['Etiquetas mozzarella COOPAGRO (exportación)', 'Etiquetas', 'Logimet/Gráfica Independencia', 'unidades'],
+  ['Etiqueta comercial Mozzarella CASANTO', 'Etiquetas', '', 'unidades'],
+  ['Cinta de embalaje 3M', 'Embalaje', '3M', 'rollos'],
+  ['Film Stretch', 'Embalaje', '', 'rollos']
+];
+
+// Insumos de la solapa OP que se habían agregado por error: configurar los quita si no tienen movimientos.
+const QUITAR_OP = ['Coagulante Hansen CHY MAX SUPREME', 'Fermento Sinergia 1,1', 'Fermento Sinergia 1,2',
+  'Fermento Sinergia 1,3', 'Fermento Sinergia 1,4', 'Fermento LHB02', 'Fermento LH32', 'Lipasa', 'Natamicina'];
+
+/* ===================== Secciones ===================== */
+
+// Cada sección tiene su lista, sus movimientos y su hoja de stock. Responsables, Proveedores y Unidades son comunes.
+const SECCIONES = {
+  insumos:  { lista: HOJA_INSUMOS, movs: HOJA_MOVS, stock: HOJA_STOCK, prefijo: 'i' },
+  quimicos: { lista: 'Químicos', movs: 'Movimientos químicos', stock: 'Stock químicos', prefijo: 'q' }
+};
+const sec_ = s => SECCIONES[s] || SECCIONES.insumos;
+
+/* ===================== Configuración inicial ===================== */
+
+function configurar() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  Object.keys(SECCIONES).forEach(k => prepararSeccion_(ss, k));
+
+  completarListado_(ss.getSheetByName(HOJA_INSUMOS));
+  quitarOP_(ss.getSheetByName(HOJA_INSUMOS), ss.getSheetByName(HOJA_MOVS));
+
+  hojaResponsables_();
+  hojaProveedores_();
+  hojaUnidades_();
+  hojaCategorias_();
+  aplicarListas_();
+  notasListados_();
+
+  const hoja1 = ss.getSheetByName('Hoja 1') || ss.getSheetByName('Sheet1');
+  if (hoja1 && hoja1.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(hoja1);
+}
+
+function prepararSeccion_(ss, clave) {
+  const S = SECCIONES[clave];
+  const q = n => "'" + n.replace(/'/g, "''") + "'";
+
+  let hi = ss.getSheetByName(S.lista);
+  if (!hi) {
+    hi = ss.insertSheet(S.lista);
+    hi.getRange(1, 1, 1, COLS_INSUMOS.length).setValues([COLS_INSUMOS]);
+    formatoEncabezado_(hi, COLS_INSUMOS.length);
+    hi.setColumnWidth(2, 360);
+  }
+
+  let hm = ss.getSheetByName(S.movs);
+  if (!hm) {
+    hm = ss.insertSheet(S.movs);
+    hm.getRange(1, 1, 1, COLS_MOVS.length).setValues([COLS_MOVS]);
+    formatoEncabezado_(hm, COLS_MOVS.length);
+    hm.getRange('B:B').setNumberFormat('dd/mm/yyyy hh:mm');
+    hm.getRange('C:C').setNumberFormat('dd/mm/yyyy');
+    hm.getRange('L:L').setNumberFormat('dd/mm/yyyy');
+    hm.setColumnWidth(7, 320);
+  }
+
+  let hs = ss.getSheetByName(S.stock);
+  if (!hs) {
+    hs = ss.insertSheet(S.stock, 0);
+    const L = q(S.lista), M = q(S.movs);
+    hs.getRange(1, 1, 1, 7).setValues([['ID', clave === 'quimicos' ? 'Químico' : 'Insumo', 'Proveedor', 'Stock', 'Unidad', 'Ingresos', 'Egresos']]);
+    hs.getRange('A2').setFormula(`=IFERROR(FILTER(${L}!A2:A, ${L}!A2:A<>"", ${L}!G2:G=TRUE))`);
+    hs.getRange('B2').setFormula(`=ARRAYFORMULA(IF(A2:A="",,VLOOKUP(A2:A, ${L}!A:E, 2, FALSE)))`);
+    hs.getRange('C2').setFormula(`=ARRAYFORMULA(IF(A2:A="",,VLOOKUP(A2:A, ${L}!A:E, 4, FALSE)))`);
+    hs.getRange('E2').setFormula(`=ARRAYFORMULA(IF(A2:A="",,VLOOKUP(A2:A, ${L}!A:E, 5, FALSE)))`);
+    hs.getRange('F2').setFormula(`=ARRAYFORMULA(IF(A2:A="",,SUMIFS(${M}!H:H, ${M}!F:F, A2:A, ${M}!E:E, "ingreso")))`);
+    hs.getRange('G2').setFormula(`=ARRAYFORMULA(IF(A2:A="",,SUMIFS(${M}!H:H, ${M}!F:F, A2:A, ${M}!E:E, "egreso")))`);
+    hs.getRange('D2').setFormula('=ARRAYFORMULA(IF(A2:A="",,F2:F-G2:G))');
+    formatoEncabezado_(hs, 7);
+    hs.setColumnWidth(2, 360);
+    hs.hideColumns(1);
+  }
+}
+
+/** Agrega los insumos del listado que todavía no están en la hoja (compara por descripción). No toca los existentes. */
+function completarListado_(hi) {
+  const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+  const datos = hi.getDataRange().getValues().slice(1).filter(r => r[0] !== '');
+  const existentes = new Set(datos.map(r => norm(r[1])));
+  let maxN = 0, maxOrden = 0;
+  datos.forEach(r => {
+    const n = parseInt(String(r[0]).replace(/\D/g, ''), 10); if (n > maxN) maxN = n;
+    if (Number(r[7]) > maxOrden) maxOrden = Number(r[7]);
+  });
+  const nuevas = [];
+  LISTADO_DI.forEach(r => {
+    if (existentes.has(norm(r[0]))) return;
+    maxN++; maxOrden++;
+    nuevas.push(['i' + String(maxN).padStart(2, '0'), r[0], r[1], r[2], r[3], '', true, maxOrden]);
+  });
+  if (nuevas.length) {
+    const fila = hi.getLastRow() + 1;
+    hi.getRange(fila, 1, nuevas.length, COLS_INSUMOS.length).setValues(nuevas);
+    hi.getRange(fila, 7, nuevas.length, 1).insertCheckboxes().setValue(true);
+  }
+  return nuevas.length;
+}
+
+function quitarOP_(hi, hm) {
+  const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+  const quitar = new Set(QUITAR_OP.map(norm));
+  const conMovs = new Set();
+  if (hm && hm.getLastRow() > 1) hm.getRange(2, 6, hm.getLastRow() - 1, 1).getValues().forEach(r => conMovs.add(String(r[0])));
+  const datos = hi.getDataRange().getValues();
+  for (let i = datos.length - 1; i >= 1; i--) {
+    if (quitar.has(norm(datos[i][1])) && !conMovs.has(String(datos[i][0]))) hi.deleteRow(i + 1);
+  }
+}
+
+function formatoEncabezado_(sh, n) {
+  sh.getRange(1, 1, 1, n).setFontWeight('bold').setBackground('#1f5f74').setFontColor('#ffffff');
+  sh.setFrozenRows(1);
+}
+
+/* ===================== App web ===================== */
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('Stock insumos')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/* La app del celular (GitHub) habla con este script por acá. */
+function doPost(e) {
+  let out;
+  try {
+    const p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (String(p.clave || '') !== CLAVE_ACCESO) {
+      out = { ok: false, error: 'clave' };
+    } else {
+      switch (p.accion) {
+        case 'listar': out = Object.assign({ ok: true }, getDatos()); break;
+        case 'agregarMovimiento': out = { ok: true, id: agregarMovimiento(p.mov, p.seccion) }; break;
+        case 'borrarMovimiento': out = { ok: true, borrado: borrarMovimiento(p.id, p.seccion) }; break;
+        default: out = { ok: false, error: 'accion' };
+      }
+    }
+  } catch (err) {
+    out = { ok: false, error: 'interno', mensaje: String(err && err.message || err) };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function leerSeccion_(ss, clave) {
+  const S = SECCIONES[clave];
+  const tz = Session.getScriptTimeZone();
+  const f = d => d instanceof Date ? Utilities.formatDate(d, tz, 'yyyy-MM-dd') : String(d || '');
+  const hi = ss.getSheetByName(S.lista), hm = ss.getSheetByName(S.movs);
+
+  const vi = hi ? hi.getDataRange().getValues().slice(1) : [];
+  const insumos = vi.filter(r => r[0] !== '').map(r => ({
+    id: String(r[0]), nombre: String(r[1]), categoria: String(r[2] || 'Otros'), proveedor: String(r[3] || ''),
+    unidad: String(r[4] || ''), minimo: r[5] === '' ? null : Number(r[5]), activo: r[6] !== false, orden: Number(r[7]) || 0
+  })).sort((a, b) => a.orden - b.orden);
+
+  const vm = hm ? hm.getDataRange().getValues().slice(1) : [];
+  const movs = vm.filter(r => r[0] !== '').map(r => ({
+    id: String(r[0]), ts: r[1] instanceof Date ? r[1].getTime() : 0, fecha: f(r[2]),
+    hora: r[3] instanceof Date ? Utilities.formatDate(r[3], tz, 'HH:mm') : String(r[3] || ''),
+    tipo: String(r[4]), insumoId: String(r[5]), insumo: String(r[6]), cantidad: Number(r[7]) || 0,
+    unidad: String(r[8] || ''), proveedor: String(r[9] || ''), lote: String(r[10] || ''), vencimiento: f(r[11]),
+    destino: String(r[12] || ''), responsable: String(r[13] || ''), obs: String(r[14] || '')
+  }));
+  return { insumos, movs };
+}
+
+function getDatos() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const secciones = {};
+  Object.keys(SECCIONES).forEach(k => secciones[k] = leerSeccion_(ss, k));
+
+  const vr = hojaResponsables_().getDataRange().getValues().slice(1);
+  const responsables = vr.filter(r => String(r[0]).trim() !== '' && r[1] !== false)
+    .map(r => String(r[0]).trim())
+    .sort((a, b) => a.localeCompare(b, 'es'));
+
+  const vp = hojaProveedores_().getDataRange().getValues().slice(1);
+  const proveedores = vp.filter(r => String(r[0]).trim() !== '' && r[1] !== false)
+    .map(r => String(r[0]).trim())
+    .sort((a, b) => a.localeCompare(b, 'es'));
+
+  const vu = hojaUnidades_().getDataRange().getValues().slice(1);
+  const unidades = vu.filter(r => String(r[0]).trim() !== '' && r[1] !== false)
+    .map(r => String(r[0]).trim())
+    .sort((a, b) => a.localeCompare(b, 'es'));
+
+  // insumos/movs se mantienen por compatibilidad con versiones viejas de la app
+  return { secciones, insumos: secciones.insumos.insumos, movs: secciones.insumos.movs, responsables, proveedores, unidades };
+}
+
+/* ===================== Categorías ===================== */
+
+/** Hoja Categorías: columna A para Insumos, columna B para Químicos. Arranca con las categorías del listado DI. */
+function hojaCategorias_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(HOJA_CAT);
+  if (!sh) {
+    sh = ss.insertSheet(HOJA_CAT);
+    sh.getRange(1, 1, 1, 2).setValues([['Categorías de insumos', 'Categorías de químicos']]);
+    formatoEncabezado_(sh, 2);
+    sh.setColumnWidths(1, 2, 240);
+    const lista = [...new Set(LISTADO_DI.map(r => String(r[1]).trim()).filter(Boolean))];
+    const hi = ss.getSheetByName(HOJA_INSUMOS);
+    if (hi && hi.getLastRow() > 1) hi.getRange(2, 3, hi.getLastRow() - 1, 1).getValues()
+      .forEach(r => { const v = String(r[0]).trim(); if (v && !lista.includes(v)) lista.push(v); });
+    sh.getRange(2, 1, lista.length, 1).setValues(lista.map(v => [v]));
+  }
+  return sh;
+}
+
+/** Desplegables en la planilla: categoría, proveedor y unidad de cada insumo/químico salen de sus hojas. */
+function aplicarListas_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const regla = rango => SpreadsheetApp.newDataValidation().requireValueInRange(rango, true).setAllowInvalid(false).build();
+  const cat = ss.getSheetByName(HOJA_CAT), prov = ss.getSheetByName(HOJA_PROV), unid = ss.getSheetByName(HOJA_UNID);
+  [[HOJA_INSUMOS, 'A'], [SECCIONES.quimicos.lista, 'B']].forEach(([nombre, colCat]) => {
+    const sh = ss.getSheetByName(nombre);
+    if (!sh) return;
+    const filas = Math.max(sh.getMaxRows() - 1, 1);
+    sh.getRange(2, 3, filas, 1).setDataValidation(regla(cat.getRange(colCat + '2:' + colCat)));
+    sh.getRange(2, 4, filas, 1).setDataValidation(regla(prov.getRange('A2:A')));
+    sh.getRange(2, 5, filas, 1).setDataValidation(regla(unid.getRange('A2:A')));
+  });
+}
+
+/** Nota en el encabezado de cada listado: cómo se mantiene desde la planilla. */
+function notasListados_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  [[HOJA_INSUMOS, 'insumos', 'Listado de insumos de la solapa DI.'], [SECCIONES.quimicos.lista, 'químicos', 'Listado de químicos.']].forEach(([nombre, cosa, titulo]) => {
+    const sh = ss.getSheetByName(nombre);
+    if (!sh) return;
+    sh.getRange('B1').setNote(titulo + '\n\nPara agregar ' + (cosa === 'insumos' ? 'uno' : 'uno') + ' o cambiar categoría, proveedor, unidad o stock mínimo, editalo en esta hoja. ' +
+      'La app lo toma al tocar Actualizar.\n\nNo cambies la columna A (ID). Para uno nuevo poné un ID que no se repita y tildá Activo.');
+  });
+}
+
+/* ===================== Unidades ===================== */
+
+/** Crea la hoja Unidades la primera vez, con las unidades usadas en el listado y las más comunes. */
+function hojaUnidades_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(HOJA_UNID);
+  if (!sh) {
+    sh = ss.insertSheet(HOJA_UNID);
+    sh.getRange(1, 1, 1, 2).setValues([['Unidad', 'Activo']]);
+    formatoEncabezado_(sh, 2);
+    sh.setColumnWidth(1, 200);
+    const lista = [...new Set(LISTADO_DI.map(r => String(r[3]).trim()).concat(['kg', 'litros', 'cajas']).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, 'es'));
+    sh.getRange(2, 1, lista.length, 2).setValues(lista.map(u => [u, true]));
+    sh.getRange(2, 2, lista.length, 1).insertCheckboxes().setValue(true);
+  }
+  return sh;
+}
+
+/* ===================== Proveedores ===================== */
+
+/** Crea la hoja Proveedores la primera vez, con los proveedores que figuran en la solapa DI. */
+function hojaProveedores_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(HOJA_PROV);
+  if (!sh) {
+    sh = ss.insertSheet(HOJA_PROV);
+    sh.getRange(1, 1, 1, 2).setValues([['Proveedor', 'Activo']]);
+    formatoEncabezado_(sh, 2);
+    sh.setColumnWidth(1, 280);
+    const lista = [...new Set(LISTADO_DI.map(r => String(r[2]).trim()).filter(p => p && p !== '-'))]
+      .sort((a, b) => a.localeCompare(b, 'es'));
+    if (lista.length) {
+      sh.getRange(2, 1, lista.length, 2).setValues(lista.map(p => [p, true]));
+      sh.getRange(2, 2, lista.length, 1).insertCheckboxes().setValue(true);
+    }
+  }
+  return sh;
+}
+
+/* ===================== Responsables ===================== */
+
+function hojaResponsables_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(HOJA_RESP);
+  if (!sh) {
+    sh = ss.insertSheet(HOJA_RESP);
+    sh.getRange(1, 1, 1, 2).setValues([['Nombre y apellido', 'Activo']]);
+    formatoEncabezado_(sh, 2);
+    sh.setColumnWidth(1, 260);
+  }
+  return sh;
+}
+
+function agregarMovimiento(m, seccion) {
+  const cant = Number(m.cantidad);
+  if (!(cant > 0)) throw new Error('La cantidad tiene que ser mayor que cero.');
+  if (m.tipo !== 'ingreso' && m.tipo !== 'egreso') throw new Error('Tipo de movimiento inválido.');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(sec_(seccion).movs);
+    if (!sh) { prepararSeccion_(ss, SECCIONES[seccion] ? seccion : 'insumos'); sh = ss.getSheetByName(sec_(seccion).movs); }
+    const id = 'm' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    sh.appendRow([
+      id, new Date(), aFecha_(m.fecha), "'" + String(m.hora || ''), m.tipo, m.insumoId, m.insumo, cant, m.unidad || '',
+      m.proveedor || '', m.lote || '', aFecha_(m.vencimiento), m.destino || '', m.responsable || '', m.obs || ''
+    ]);
+    return id;
+  } finally { lock.releaseLock(); }
+}
+
+function borrarMovimiento(id, seccion) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sec_(seccion).movs);
+    if (!sh) return false;
+    const ids = sh.getRange(1, 1, sh.getLastRow(), 1).getValues();
+    for (let i = ids.length - 1; i >= 1; i--) {
+      if (String(ids[i][0]) === String(id)) { sh.deleteRow(i + 1); return true; }
+    }
+    return false;
+  } finally { lock.releaseLock(); }
+}
+
+function aFecha_(s) {
+  if (!s) return '';
+  const p = String(s).split('-').map(Number);
+  return p.length === 3 ? new Date(p[0], p[1] - 1, p[2]) : s;
+}
