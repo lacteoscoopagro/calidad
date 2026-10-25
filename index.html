@@ -24,7 +24,7 @@
   --pend:#991B1B; --pend-bg:#FEE2E2; --proc:#92400E; --proc-bg:#FEF3C7; --ok:#166534; --ok-bg:#DCFCE7;
   --navy:var(--accent); --navy-soft:var(--accent-soft); --card-line:var(--line); --slate:var(--ink); --slate-2:var(--muted);
   --rojo-bg:var(--pend-bg); --rojo:var(--pend); --ambar-bg:var(--proc-bg); --ambar:var(--proc);
-  --sombra:0 1px 2px rgba(15,23,42,.05),0 4px 12px rgba(15,23,42,.05); --marca-op:.34;
+  --sombra:0 1px 2px rgba(15,23,42,.05),0 4px 12px rgba(15,23,42,.05); --marca-op:.34; --st-claro:#A9BCE0;
   --stamp-bg:rgba(15,23,42,.78); --stamp-fg:#F8FAFC; --scrim:rgba(15,23,42,.55); --logo-bg:#FFFFFF;
   --f-ui:"Inter","SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
   --f-display:var(--f-ui); --f-body:var(--f-ui);
@@ -34,7 +34,7 @@
     --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#263442;
     --accent:#9DB7FF; --accent-ink:#0B1530; --accent-soft:#1B2A4C;
     --pend:#FCA5A5; --pend-bg:#4A1F1F; --proc:#FCD34D; --proc-bg:#433310; --ok:#86EFAC; --ok-bg:#14331F;
-    --sombra:0 1px 2px rgba(0,0,0,.3); --marca-op:.4;
+    --sombra:0 1px 2px rgba(0,0,0,.3); --marca-op:.4; --st-claro:#3B4F7D;
     --stamp-bg:rgba(5,10,13,.8); --stamp-fg:#EDF2F5; --scrim:rgba(0,0,0,.65);
     color-scheme:dark;
   }
@@ -43,7 +43,7 @@
   --bg:#0E161B; --surface:#172229; --sunken:#0A1115; --ink:#E5ECF0; --muted:#93A5AF; --line:#263442;
   --accent:#9DB7FF; --accent-ink:#0B1530; --accent-soft:#1B2A4C;
   --pend:#FCA5A5; --pend-bg:#4A1F1F; --proc:#FCD34D; --proc-bg:#433310; --ok:#86EFAC; --ok-bg:#14331F;
-  --sombra:0 1px 2px rgba(0,0,0,.3); --marca-op:.4;
+  --sombra:0 1px 2px rgba(0,0,0,.3); --marca-op:.4; --st-claro:#3B4F7D;
   --stamp-bg:rgba(5,10,13,.8); --stamp-fg:#EDF2F5; --scrim:rgba(0,0,0,.65);
   color-scheme:dark;
 }
@@ -333,6 +333,52 @@ dialog{border-radius:20px}
 .hilo{border-radius:12px}
 select.t-estado,select.t-prio{border-radius:999px}
 .usuarios .btn{border-radius:12px}
+
+/* ---- Estadísticas ---- */
+.entrada.entrada-ancha{grid-column:1/-1;min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px 14px}
+.entrada-ancha .entrada-txt{flex:1 1 auto;padding-right:24px}
+.entrada-ancha .entrada-side{flex-basis:100%;padding-left:58px;margin-top:-6px}
+.stats{display:flex;flex-direction:column;gap:16px;padding-block:16px 32px}
+.st-filtros{display:flex;flex-direction:column;gap:10px}
+.st-fila{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-fila > span{font:600 11.5px/1.3 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:64px}
+.st-nota{font-size:13px;color:var(--muted);margin:0}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:760px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sombra);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kpi > span{font:600 11.5px/1.3 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi b{font:800 28px/1 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink)}
+.kpi small{font-size:12.5px;color:var(--muted)}
+.kpi .pills{display:flex;gap:6px;flex-wrap:wrap}
+.st-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sombra);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.st-card h2{font:700 16px/1.25 var(--f-ui);margin:0}
+.st-sub{font-size:13px;color:var(--muted);margin:-6px 0 0}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.barras{display:flex;flex-direction:column;gap:8px}
+.barra{display:grid;grid-template-columns:minmax(96px,42%) 1fr auto;align-items:center;gap:10px;font-size:13.5px}
+.barra-nom{color:var(--ink);line-height:1.25;overflow-wrap:anywhere}
+.kpi .pill{font-size:11px}
+.kpi .pill b{font-size:13px}
+.barra-pista{display:flex;gap:2px;height:14px;min-width:0}
+.barra-pista i{display:block;height:100%;min-width:3px}
+.barra-pista i:first-child{border-radius:4px 0 0 4px}
+.barra-pista i:last-child{border-radius:0 4px 4px 0}
+.barra-pista i:only-child{border-radius:0 4px 4px 0}
+.barra-val{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);min-width:2ch;text-align:right}
+.c-abierto{background:var(--accent)}
+.c-cerrado{background:var(--st-claro)}
+.columnas{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:18px;border-bottom:1px solid var(--line);position:relative}
+.col{flex:1 1 0;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.col i{display:block;width:100%;max-width:34px;background:var(--accent);border-radius:4px 4px 0 0;min-height:0}
+.col em{position:absolute;font:600 11.5px/1 var(--f-ui);font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
+.col-ejes{display:flex;gap:4px;margin-top:6px}
+.col-ejes span{flex:1 1 0;min-width:0;text-align:center;font-size:11px;color:var(--muted);overflow:hidden;white-space:nowrap}
+.st-tabla{font-size:13px}
+.st-tabla summary{cursor:pointer;color:var(--accent);font-weight:600}
+.st-tabla table{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+.st-tabla th,.st-tabla td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}
+.st-tabla th:first-child,.st-tabla td:first-child{text-align:left}
 </style>
 </head>
 <body>
@@ -374,6 +420,7 @@ select.t-estado,select.t-prio{border-radius:999px}
       <main class="panel" id="panel"></main>
     </div>
     <div class="tareas" id="tareas" hidden></div>
+    <div class="stats" id="stats" hidden></div>
   </section>
 </div>
 
@@ -546,7 +593,7 @@ select.t-estado,select.t-prio{border-radius:999px}
   const esRepro = l => /RE-?PRO/i.test(l);
   const RANGO_T = { pendiente: 0, proceso: 1, resuelta: 2 };
   const PRIO = { '1': 'Prioridad 1 · alta', '2': 'Prioridad 2 · media', '3': 'Prioridad 3 · baja' };
-  const TITULOS = { preop: 'Verificación Preoperacional', op: 'Verificación Operacional', partes: 'Partes Diarios', pendientes: 'Pendientes' };
+  const TITULOS = { preop: 'Verificación Preoperacional', op: 'Verificación Operacional', partes: 'Partes Diarios', pendientes: 'Pendientes', estadisticas: 'Estadísticas' };
   const esVerif = p => p === 'preop' || p === 'op';
   const esTareas = p => p === 'partes' || p === 'pendientes';
   const EST_T = { pendiente: ['Pendiente', 'Pendientes'], proceso: ['En proceso', 'En proceso'], resuelta: ['Resuelta', 'Resueltas'] };
@@ -593,6 +640,7 @@ select.t-estado,select.t-prio{border-radius:999px}
     clave: lsGet('calidad.clave'),
     detalle: null, confirmar: false, nuevas: [], guardando: false, nGenera: { genera: [], repro: '' },
     destino: 'preop', tipo: 'preop', tareas: [], tPorId: new Map(), resueltasTotal: 0, maxResueltas: 300,
+    eTipo: 'todas', ePer: 'mes', estad: null, estadOrigen: '', estadCargando: false,
     tVista: 'dia', pVista: 'pendientes', tEstado: {},
     tDia: '', tDesde: '', tHasta: '', tHilos: {}, tBorr: {}, tConfirmar: null, tEditResp: null, tNuevaId: null, tGuardando: false,
   };
@@ -1470,6 +1518,7 @@ select.t-estado,select.t-prio{border-radius:999px}
     if (!S.items.length && !S.tareas.length) S.conexion = 'cargando';
     pintar();
     refrescar();
+    if (S.pantalla === 'estadisticas') cargarEstad();
   }
   function salir() {
     S.pantalla = 'inicio'; S.quien = ''; S.view = 'home';
@@ -1483,6 +1532,7 @@ select.t-estado,select.t-prio{border-radius:999px}
     parte: '<path d="M14 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8z"/><path d="M14 2.5V8h5.5"/><path d="M8.5 13h7M8.5 17h5"/>',
     alerta: '<circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5"/><path d="M12 16.2h.01"/>',
     flecha: '<path d="m9 6 6 6-6 6"/>',
+    grafico: '<path d="M3.5 20.5h17"/><rect x="5" y="11" width="3.2" height="6.5" rx="1"/><rect x="10.4" y="6.5" width="3.2" height="11" rx="1"/><rect x="15.8" y="9" width="3.2" height="8.5" rx="1"/>',
   };
   function svg(nombre, clase) {
     const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1512,7 +1562,118 @@ select.t-estado,select.t-prio{border-radius:999px}
       tarjeta('preop', 'Verificación Preoperacional', 'checklist', abiertos(conteos('preop').todos)),
       tarjeta('op', 'Verificación Operacional', 'engranaje', abiertos(conteos('op').todos)),
       tarjeta('partes', 'Partes Diarios', 'parte', hoyN ? h('span', { class: 'pill neutro' }, h('b', null, hoyN), hoyN === 1 ? ' registro hoy' : ' registros hoy') : h('span', { class: 'entrada-estado' }, 'Sin registros hoy')),
-      tarjeta('pendientes', 'Pendientes', 'alerta', abiertos(t)));
+      tarjeta('pendientes', 'Pendientes', 'alerta', abiertos(t)),
+      (() => { const mes = hoy().slice(0, 7), n = S.items.filter(d => String(d.fecha).slice(0, 7) === mes).length;
+        const el = tarjeta('estadisticas', 'Estadísticas', 'grafico', h('span', { class: 'entrada-estado' }, n ? n + (n === 1 ? ' desvío este mes' : ' desvíos este mes') : 'Desvíos por sector, estado y mes'));
+        el.classList.add('entrada-ancha'); return el; })());
+  }
+  /* ---------- Estadísticas ---------- */
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const PERIODOS = { mes: 'Mes', tres: '3 meses', anio: 'Año', todo: 'Todo' };
+  const PERIODOS_TXT = { mes: 'este mes', tres: 'últimos 3 meses', anio: 'este año', todo: 'todo el historial' };
+  async function cargarEstad() {
+    if (!API || !S.clave || S.estadCargando) return;
+    S.estadCargando = true; pintarStats();
+    try { const out = await api('estadisticas'); S.estad = out.desvios || []; S.estadOrigen = 'registro'; }
+    catch (e) { S.estadOrigen = e.code === 'accion' ? 'viejo' : 'error'; }
+    S.estadCargando = false; pintarStats();
+  }
+  function filasEstad() {
+    if (S.estad) return S.estad;
+    return S.items.map(d => ({ t: d.tipo, s: d.sector, e: d.estado, f: d.fecha, g: d.genera || [], c: d.creado, x: d.cerradoEn || '' }));
+  }
+  function desdePeriodo() {
+    const d = hoy();
+    if (S.ePer === 'mes') return d.slice(0, 7) + '-01';
+    if (S.ePer === 'anio') return d.slice(0, 4) + '-01-01';
+    if (S.ePer === 'tres') { const x = new Date(d + 'T12:00:00'); x.setMonth(x.getMonth() - 3); return fechaDe(x); }
+    return '';
+  }
+  function pintarStats() {
+    const box = $('stats');
+    if (S.pantalla !== 'estadisticas') return;
+    const desde = desdePeriodo();
+    const rows = filasEstad().filter(r => (S.eTipo === 'todas' || r.t === S.eTipo) && (!desde || String(r.f) >= desde));
+    const chip = (grupo, k, label) => h('button', { type: 'button', class: 'chip', 'aria-pressed': S[grupo] === k ? 'true' : 'false', onclick: () => { S[grupo] = k; pintarStats(); } }, label);
+    const filtros = h('div', { class: 'st-filtros' },
+      h('div', { class: 'st-fila', role: 'group', 'aria-label': 'Verificación' }, h('span', null, 'Ver'),
+        chip('eTipo', 'todas', 'Ambas'), chip('eTipo', 'preop', 'Preop'), chip('eTipo', 'op', 'Op')),
+      h('div', { class: 'st-fila', role: 'group', 'aria-label': 'Período' }, h('span', null, 'Período'),
+        ...Object.entries(PERIODOS).map(([k, v]) => chip('ePer', k, v))));
+    let nota = null;
+    if (S.estadCargando && !S.estad) nota = 'Cargando todos los desvíos del registro…';
+    else if (!S.estad) nota = S.estadOrigen === 'viejo' ? 'Falta actualizar el registro en Google para ver el historial completo. Mientras tanto se cuentan los desvíos que tiene este teléfono (los abiertos y los últimos cerrados).'
+      : 'Se cuentan los desvíos que tiene este teléfono (los abiertos y los últimos cerrados).';
+    // KPIs
+    const n = { pendiente: 0, proceso: 0, cerrado: 0 };
+    rows.forEach(r => { if (r.e in n) n[r.e]++; });
+    const dias = rows.filter(r => r.e === 'cerrado' && r.c && r.x).map(r => (new Date(r.x) - new Date(r.c)) / 864e5).filter(v => v >= 0 && isFinite(v));
+    const prom = dias.length ? dias.reduce((a, b) => a + b, 0) / dias.length : null;
+    const promTxt = prom == null ? '—' : prom < 1 ? 'Menos de 1' : String(Math.round(prom * 10) / 10).replace('.', ',');
+    const kpi = (titulo, valor, extra) => h('div', { class: 'kpi' }, h('span', null, titulo), h('b', null, valor), extra);
+    const kpis = h('div', { class: 'kpis' },
+      kpi('Desvíos', rows.length, h('small', null, PERIODOS_TXT[S.ePer])),
+      kpi('Abiertos', n.pendiente + n.proceso, h('div', { class: 'pills' },
+        h('span', { class: 'pill pendiente' }, h('b', null, n.pendiente), ' pend.'), h('span', { class: 'pill proceso' }, h('b', null, n.proceso), ' en proc.'))),
+      kpi('Cerrados', n.cerrado, h('small', null, rows.length ? Math.round(n.cerrado * 100 / rows.length) + '% del total' : '')),
+      kpi('Cierre promedio', promTxt, h('small', null, prom == null ? 'sin cierres en el período' : (prom >= 1 && Math.round(prom * 10) === 10 ? 'día' : 'días') + ' desde que se cargó')));
+    if (!rows.length) {
+      box.replaceChildren(filtros, nota ? h('p', { class: 'st-nota' }, nota) : null, kpis,
+        h('div', { class: 'empty' }, h('strong', null, 'Sin desvíos en este período'), h('span', null, 'Probá con otro período o con las dos verificaciones.')));
+      return;
+    }
+    // By sector
+    const porSec = new Map();
+    rows.forEach(r => { const k = r.s || 'Sin sector'; const v = porSec.get(k) || { a: 0, c: 0 }; r.e === 'cerrado' ? v.c++ : v.a++; porSec.set(k, v); });
+    const secs = [...porSec.entries()].sort((x, y) => (y[1].a + y[1].c) - (x[1].a + x[1].c) || x[0].localeCompare(y[0]));
+    const maxS = Math.max(...secs.map(([, v]) => v.a + v.c));
+    const sector = h('section', { class: 'st-card' }, h('h2', null, 'Desvíos por sector'),
+      h('div', { class: 'leyenda' }, h('span', null, h('i', { class: 'c-abierto' }), 'Abiertos'), h('span', null, h('i', { class: 'c-cerrado' }), 'Cerrados')),
+      h('div', { class: 'barras' }, ...secs.map(([nom, v]) => h('div', { class: 'barra', title: nom + ': ' + v.a + (v.a === 1 ? ' abierto' : ' abiertos') + ', ' + v.c + (v.c === 1 ? ' cerrado' : ' cerrados') },
+        h('span', { class: 'barra-nom' }, nom),
+        h('span', { class: 'barra-pista' },
+          v.a ? h('i', { class: 'c-abierto', style: 'width:' + (v.a * 100 / maxS) + '%' }) : null,
+          v.c ? h('i', { class: 'c-cerrado', style: 'width:' + (v.c * 100 / maxS) + '%' }) : null),
+        h('span', { class: 'barra-val' }, v.a + v.c)))),
+      h('details', { class: 'st-tabla' }, h('summary', null, 'Ver como tabla'),
+        h('table', null, h('thead', null, h('tr', null, h('th', null, 'Sector'), h('th', null, 'Abiertos'), h('th', null, 'Cerrados'), h('th', null, 'Total'))),
+          h('tbody', null, ...secs.map(([nom, v]) => h('tr', null, h('td', null, nom), h('td', null, v.a), h('td', null, v.c), h('td', null, v.a + v.c)))))));
+    // What they generate
+    const porG = new Map(); let sinG = 0;
+    rows.forEach(r => { const g = (r.g || []).filter(Boolean); if (!g.length) sinG++; g.forEach(x => porG.set(x, (porG.get(x) || 0) + 1)); });
+    const gens = [...porG.entries()].sort((x, y) => y[1] - x[1]);
+    if (sinG) gens.push(['Sin indicar', sinG]);
+    const maxG = Math.max(1, ...gens.map(x => x[1]));
+    const genera = h('section', { class: 'st-card' }, h('h2', null, 'Qué generaron los desvíos'),
+      h('p', { class: 'st-sub' }, 'Un desvío puede generar más de una cosa, por eso la suma puede dar más que el total.'),
+      h('div', { class: 'barras' }, ...gens.map(([nom, c]) => h('div', { class: 'barra', title: nom + ': ' + c + (c === 1 ? ' desvío' : ' desvíos') },
+        h('span', { class: 'barra-nom' }, nom),
+        h('span', { class: 'barra-pista' }, h('i', { class: nom === 'Sin indicar' ? 'c-cerrado' : 'c-abierto', style: 'width:' + (c * 100 / maxG) + '%' })),
+        h('span', { class: 'barra-val' }, c)))));
+    // Over time: weeks for short periods, months otherwise
+    const semanal = S.ePer === 'mes' || S.ePer === 'tres';
+    const claveDe = f => {
+      if (!semanal) return String(f).slice(0, 7);
+      const x = new Date(String(f) + 'T12:00:00'); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return fechaDe(x);
+    };
+    const cubetas = [];
+    const ini = desde || (rows.map(r => String(r.f)).filter(Boolean).sort()[0] || hoy());
+    if (semanal) { const x = new Date(claveDe(ini) + 'T12:00:00'), fin = hoy(); while (fechaDe(x) <= fin) { cubetas.push(fechaDe(x)); x.setDate(x.getDate() + 7); } }
+    else { let [a, m] = ini.slice(0, 7).split('-').map(Number); const fin = hoy().slice(0, 7); while (true) { const k = a + '-' + pad(m); cubetas.push(k); if (k >= fin) break; m++; if (m > 12) { m = 1; a++; } } }
+    const vis = cubetas.slice(-24);
+    const cuenta = new Map(vis.map(k => [k, 0]));
+    rows.forEach(r => { const k = claveDe(r.f); if (cuenta.has(k)) cuenta.set(k, cuenta.get(k) + 1); });
+    const maxC = Math.max(1, ...cuenta.values());
+    const etiqueta = k => semanal ? (+k.slice(8, 10)) + '/' + (+k.slice(5, 7)) : MESES[+k.slice(5, 7) - 1] + (vis.length > 12 || k.slice(0, 4) !== hoy().slice(0, 4) ? ' ' + k.slice(2, 4) : '');
+    const iMax = vis.findIndex(k => cuenta.get(k) === maxC), iUlt = vis.length - 1;
+    const evol = h('section', { class: 'st-card' }, h('h2', null, semanal ? 'Desvíos por semana' : 'Desvíos por mes'),
+      h('p', { class: 'st-sub' }, semanal ? 'Cada columna es una semana, de lunes a domingo.' : 'Cada columna es un mes.'),
+      h('div', { class: 'columnas' }, ...vis.map((k, i) => { const c = cuenta.get(k);
+        return h('div', { class: 'col', title: (semanal ? 'Semana del ' + etiqueta(k) : etiqueta(k)) + ': ' + c + (c === 1 ? ' desvío' : ' desvíos') },
+          (i === iMax || i === iUlt) && c ? h('em', { style: 'bottom:calc(' + (c * 100 / maxC) + '% + 4px)' }, c) : null,
+          h('i', { style: 'height:' + (c * 100 / maxC) + '%' })); })),
+      h('div', { class: 'col-ejes', 'aria-hidden': 'true' }, ...vis.map((k, i) => h('span', null, vis.length > 8 && i % 2 && i !== iUlt ? '' : etiqueta(k)))));
+    box.replaceChildren(filtros, nota ? h('p', { class: 'st-nota' }, nota) : null, kpis, sector, genera, evol);
   }
   function pintarSync() {
     $('syncTxt').textContent = S.sincronizando ? 'Actualizando…' : S.actualizado ? 'Actualizado ' + diaHora(S.actualizado) : '';
@@ -1527,12 +1688,13 @@ select.t-estado,select.t-prio{border-radius:999px}
     $('inicio').hidden = dentro;
     $('preop').hidden = !dentro;
     $('secTitulo').textContent = TITULOS[S.pantalla] || TITULOS.preop;
-    $('quienRol').textContent = esTareas(S.pantalla) ? 'Usuario' : 'Verifica';
+    $('quienRol').textContent = esVerif(S.pantalla) ? 'Verifica' : 'Usuario';
     $('quienNombre').textContent = S.quien;
     $('app').hidden = !esVerif(S.pantalla);
     $('tareas').hidden = !esTareas(S.pantalla);
+    $('stats').hidden = S.pantalla !== 'estadisticas';
     $('app').dataset.view = S.view;
-    pintarInicio(); pintarRail(); pintarPanel(); pintarTareas(false); pintarListas(); pintarSync(); pintarDetalle(false);
+    pintarInicio(); pintarRail(); pintarPanel(); pintarTareas(false); pintarStats(); pintarListas(); pintarSync(); pintarDetalle(false);
   }
 
   $('today').textContent = $('today2').textContent = (() => {
@@ -1558,7 +1720,7 @@ select.t-estado,select.t-prio{border-radius:999px}
   $('tareaCerrar').addEventListener('click', () => { if (!S.tGuardando) dlgT.close(); });
   dlgT.addEventListener('cancel', e => { if (S.tGuardando) e.preventDefault(); });
 
-  $('syncBtn').addEventListener('click', refrescar);
+  $('syncBtn').addEventListener('click', () => { refrescar(); if (S.pantalla === 'estadisticas') cargarEstad(); });
 
   let inicial = '';
   try { inicial = decodeURIComponent((location.hash || '').slice(1)); } catch (e) {}
