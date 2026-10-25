@@ -1618,8 +1618,8 @@ select.t-estado,select.t-prio{border-radius:999px}
       kpi('Cerrados', n.cerrado, h('small', null, rows.length ? Math.round(n.cerrado * 100 / rows.length) + '% del total' : '')),
       kpi('Cierre promedio', promTxt, h('small', null, prom == null ? 'sin cierres en el período' : (prom >= 1 && Math.round(prom * 10) === 10 ? 'día' : 'días') + ' desde que se cargó')));
     if (!rows.length) {
-      box.replaceChildren(filtros, nota ? h('p', { class: 'st-nota' }, nota) : null, kpis,
-        h('div', { class: 'empty' }, h('strong', null, 'Sin desvíos en este período'), h('span', null, 'Probá con otro período o con las dos verificaciones.')));
+      box.replaceChildren(...[filtros, nota ? h('p', { class: 'st-nota' }, nota) : null, kpis,
+        h('div', { class: 'empty' }, h('strong', null, 'Sin desvíos en este período'), h('span', null, 'Probá con otro período o con las dos verificaciones.'))].filter(Boolean));
       return;
     }
     // By sector
@@ -1673,7 +1673,7 @@ select.t-estado,select.t-prio{border-radius:999px}
           (i === iMax || i === iUlt) && c ? h('em', { style: 'bottom:calc(' + (c * 100 / maxC) + '% + 4px)' }, c) : null,
           h('i', { style: 'height:' + (c * 100 / maxC) + '%' })); })),
       h('div', { class: 'col-ejes', 'aria-hidden': 'true' }, ...vis.map((k, i) => h('span', null, vis.length > 8 && i % 2 && i !== iUlt ? '' : etiqueta(k)))));
-    box.replaceChildren(filtros, nota ? h('p', { class: 'st-nota' }, nota) : null, kpis, sector, genera, evol);
+    box.replaceChildren(...[filtros, nota ? h('p', { class: 'st-nota' }, nota) : null, kpis, sector, genera, evol].filter(Boolean));
   }
   function pintarSync() {
     $('syncTxt').textContent = S.sincronizando ? 'Actualizando…' : S.actualizado ? 'Actualizado ' + diaHora(S.actualizado) : '';
